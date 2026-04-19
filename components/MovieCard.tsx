@@ -1,0 +1,158 @@
+"use client";
+
+import Link from "next/link";
+import { genreMap } from "@/lib/genres";
+import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
+
+const baseImageUrl = "https://image.tmdb.org/t/p/w500";
+
+export default function MovieCard({ movie }: { movie: any }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  const genres =
+    movie.genre_ids
+      ?.slice(0, 2)
+      .map((id: number) => genreMap[id])
+      .filter(Boolean)
+      .join(", ") || "Movie";
+
+  const href =
+    movie.media_type === "tv"
+      ? `/tv/${movie.id}`
+      : `/movie/${movie.id}`;
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        checkFavorite(session.user.id);
+      }
+    };
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event: string, session: Session | null) => {
+        if (session?.user) {
+          setUser(session.user);
+          checkFavorite(session.user.id);
+        } else {
+          setUser(null);
+          setIsFavorite(false);
+        }
+      }
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const checkFavorite = async (userId: string) => {
+  const { data } = await supabase
+    .from("favorites")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("media_id", movie.id)
+    .eq("media_type", movie.media_type || "movie")
+    .limit(1);
+    setIsFavorite(data !== null && data.length > 0);
+  };
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      window.location.href = "/auth/login";
+      return;
+    }
+
+    if (isFavorite) {
+      await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("media_id", movie.id)
+        .eq("media_type", movie.media_type || "movie");
+      setIsFavorite(false);
+    } else {
+      await supabase.from("favorites").insert({
+        user_id: user.id,
+        media_id: movie.id,
+        media_type: movie.media_type || "movie",
+        title: movie.title || movie.name,
+        poster_path: movie.poster_path,
+        vote_average: movie.vote_average,
+      });
+      setIsFavorite(true);
+    }
+  };
+
+  return (
+    <Link
+      href={href}
+      className="
+      relative
+      group
+      cursor-pointer
+      shrink-0
+      w-50 md:w-60
+      transform
+      transition-all
+      duration-300
+      ease-out
+      hover:-translate-y-2
+      hover:scale-105
+      hover:shadow-[0_10px_40px_rgba(239,68,68,0.35)]
+      block
+      "
+    >
+      {/* Poster */}
+      <img
+        src={`${baseImageUrl}${movie.poster_path}`}
+        alt={movie.title || movie.name}
+        className="w-full h-75 md:h-90 object-cover rounded-xl transition-transform duration-300"
+      />
+
+      {/* Rating badge */}
+      <div className="absolute top-3 right-3 bg-black/90 text-yellow-400 text-sm px-2.5 py-1 rounded-md font-semibold backdrop-blur-sm flex items-center gap-1">
+        <FaStar size={11} className="text-yellow-400" />
+        {movie.vote_average?.toFixed(1)}
+      </div>
+
+      {/* Media type badge */}
+      {movie.media_type === "tv" && (
+        <div className="absolute top-3 left-3 bg-blue-600/90 text-white text-xs px-2 py-0.5 rounded-md font-medium backdrop-blur-sm">
+          TV
+        </div>
+      )}
+
+      {/* Hover Overlay */}
+      <div className="absolute inset-0 rounded-xl bg-linear-to-t from-black via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+        <h3 className="text-white text-base md:text-lg font-semibold leading-tight">
+          {movie.title || movie.name}
+        </h3>
+        <p className="text-gray-300 text-sm mt-1 mb-3">{genres}</p>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-md font-medium text-center transition flex items-center justify-center gap-2">
+            <FaPlay size={12} />
+            Play
+          </div>
+          <button
+            onClick={toggleFavorite}
+            className={`px-3 py-2 rounded-md font-semibold transition text-center flex items-center justify-center cursor-pointer ${
+              isFavorite
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : "bg-gray-700/90 hover:bg-gray-600 text-white"
+            }`}
+          >
+            {isFavorite ? <FaCheck size={14} /> : <FaPlus size={14} />}
+          </button>
+        </div>
+      </div>
+    </Link>
+  );
+}
