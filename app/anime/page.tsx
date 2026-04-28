@@ -6,18 +6,54 @@ import MovieCard from "@/components/MovieCard";
 
 function useDebounce(value: any, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
-
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(timer);
   }, [value, delay]);
-
   return debouncedValue;
+}
+
+function MovieCardSkeleton() {
+  return (
+    <div className="w-full rounded-xl overflow-hidden animate-pulse">
+      <div className="aspect-2/3 bg-gray-800 rounded-xl" />
+    </div>
+  );
+}
+
+function PageSkeleton() {
+  return (
+    <div className="flex gap-0 py-8">
+      {/* Sidebar skeleton */}
+      <div className="hidden lg:block w-52 bg-[#141414] p-5 shrink-0 border-r border-gray-800">
+        <div className="h-5 w-24 bg-gray-700 rounded animate-pulse mb-6" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="mb-6">
+            <div className="h-3 w-16 bg-gray-700 rounded animate-pulse mb-3" />
+            {Array.from({ length: 4 }).map((_, j) => (
+              <div key={j} className="h-3 w-20 bg-gray-800 rounded animate-pulse mb-2" />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Grid skeleton */}
+      <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
+        <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-4" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+          {Array.from({ length: 18 }).map((_, i) => (
+            <MovieCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function AnimePage() {
   const [anime, setAnime] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,12 +73,9 @@ export default function AnimePage() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  // Fetch hero background from Attack on Titan
   useEffect(() => {
     const fetchHero = async () => {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/tv/52698?api_key=${API_KEY}`
-      );
+      const res = await fetch(`https://api.themoviedb.org/3/tv/52698?api_key=${API_KEY}`);
       const data = await res.json();
       if (data.backdrop_path) {
         setHeroBg(`https://image.tmdb.org/t/p/original${data.backdrop_path}`);
@@ -53,7 +86,8 @@ export default function AnimePage() {
 
   useEffect(() => {
     const fetchAnime = async () => {
-      setLoading(true);
+      if (page === 1) setInitialLoading(true);
+      else setLoading(true);
 
       const mediaType = selectedType === "TV" ? "tv" : "movie";
       let url = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}&with_genres=16&with_keywords=210024&sort_by=popularity.desc&page=${page}`;
@@ -63,10 +97,7 @@ export default function AnimePage() {
           ? `&primary_release_year=${debouncedYear}`
           : `&first_air_date_year=${debouncedYear}`;
       }
-
-      if (debouncedRating !== "All") {
-        url += `&vote_average.gte=${debouncedRating}`;
-      }
+      if (debouncedRating !== "All") url += `&vote_average.gte=${debouncedRating}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -80,6 +111,8 @@ export default function AnimePage() {
           return unique;
         });
       }
+
+      setInitialLoading(false);
       setLoading(false);
     };
 
@@ -171,13 +204,10 @@ export default function AnimePage() {
       {/* HERO SECTION */}
       <div
         className="relative h-64 sm:h-80 md:h-96 bg-cover bg-center flex items-center justify-center bg-gray-900"
-        style={{
-          backgroundImage: heroBg ? `url(${heroBg})` : "none",
-        }}
+        style={{ backgroundImage: heroBg ? `url(${heroBg})` : "none" }}
       >
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/20 to-black" />
-
         <div className="relative z-10 text-center px-4">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold mb-3 tracking-tight">
             Explore Anime
@@ -214,55 +244,53 @@ export default function AnimePage() {
         </div>
       )}
 
-      <div className="flex gap-0 py-8">
+      {/* Initial full-page skeleton */}
+      {initialLoading ? (
+        <PageSkeleton />
+      ) : (
+        <div className="flex gap-0 py-8">
 
-        {/* DESKTOP SIDEBAR */}
-        <div className="hidden lg:block w-52 bg-[#141414] p-5 sticky top-24 shrink-0 border-r border-gray-800 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
-          <h2 className="text-base font-semibold mb-5">Filters</h2>
-          <FilterContent />
-        </div>
+          {/* DESKTOP SIDEBAR */}
+          <div className="hidden lg:block w-52 bg-[#141414] p-5 sticky top-24 shrink-0 border-r border-gray-800 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
+            <h2 className="text-base font-semibold mb-5">Filters</h2>
+            <FilterContent />
+          </div>
 
-        {/* ANIME GRID */}
-        <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
-            Anime
-            <span className="text-gray-500 font-normal text-base ml-2">({anime.length})</span>
-          </h2>
+          {/* ANIME GRID */}
+          <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
+              Anime
+              <span className="text-gray-500 font-normal text-base ml-2">({anime.length})</span>
+            </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-            {anime.map((item, index) => {
-              if (anime.length === index + 1) {
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+              {anime.map((item, index) => {
+                if (anime.length === index + 1) {
+                  return (
+                    <div ref={lastAnimeRef} key={item.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
+                      <MovieCard movie={item} />
+                    </div>
+                  );
+                }
                 return (
-                  <div
-                    ref={lastAnimeRef}
-                    key={item.id}
-                    className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-                  >
+                  <div key={item.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
                     <MovieCard movie={item} />
                   </div>
                 );
-              }
-              return (
-                <div
-                  key={item.id}
-                  className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-                >
-                  <MovieCard movie={item} />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* SKELETON LOADER */}
-          {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-3">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="aspect-2/3 bg-gray-800 animate-pulse rounded-md" />
-              ))}
+              })}
             </div>
-          )}
+
+            {/* Infinite scroll skeleton */}
+            {loading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-3">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <MovieCardSkeleton key={i} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* BACK TO TOP */}
       {showTop && (
@@ -273,7 +301,6 @@ export default function AnimePage() {
           <ChevronUp size={20} />
         </button>
       )}
-
     </div>
   );
 }

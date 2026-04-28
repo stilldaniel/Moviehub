@@ -6,19 +6,57 @@ import MovieCard from "@/components/MovieCard";
 
 function useDebounce(value: any, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
-
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(timer);
   }, [value, delay]);
-
   return debouncedValue;
+}
+
+// Skeleton card matching MovieCard shape
+function MovieCardSkeleton() {
+  return (
+    <div className="w-full rounded-xl overflow-hidden animate-pulse">
+      <div className="aspect-2/3 bg-gray-800 rounded-xl" />
+    </div>
+  );
+}
+
+// Full page skeleton shown on initial load
+function PageSkeleton() {
+  return (
+    <div className="flex gap-0 py-8">
+      {/* Sidebar skeleton */}
+      <div className="hidden lg:block w-52 bg-[#141414] p-5 shrink-0 border-r border-gray-800">
+        <div className="h-5 w-24 bg-gray-700 rounded animate-pulse mb-6" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="mb-6">
+            <div className="h-3 w-16 bg-gray-700 rounded animate-pulse mb-3" />
+            {Array.from({ length: 5 }).map((_, j) => (
+              <div key={j} className="h-3 w-20 bg-gray-800 rounded animate-pulse mb-2" />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Grid skeleton */}
+      <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
+        <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-4" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+          {Array.from({ length: 18 }).map((_, i) => (
+            <MovieCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState<any[]>([]);
   const [genres, setGenres] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -48,7 +86,9 @@ export default function MoviesPage() {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      setLoading(true);
+      if (page === 1) setInitialLoading(true);
+      else setLoading(true);
+
       let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}`;
       if (debouncedGenre !== "All") url += `&with_genres=${debouncedGenre}`;
       if (debouncedYear !== "All") url += `&primary_release_year=${debouncedYear}`;
@@ -66,6 +106,8 @@ export default function MoviesPage() {
           return uniqueMovies;
         });
       }
+
+      setInitialLoading(false);
       setLoading(false);
     };
     fetchMovies();
@@ -162,13 +204,10 @@ export default function MoviesPage() {
       {/* HERO SECTION */}
       <div
         className="relative h-64 sm:h-80 md:h-96 bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage: `url(https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg)`,
-        }}
+        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg)` }}
       >
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/20 to-black" />
-
         <div className="relative z-10 text-center px-4">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold mb-3 tracking-tight">
             Discover Movies
@@ -205,55 +244,53 @@ export default function MoviesPage() {
         </div>
       )}
 
-      <div className="flex gap-0 py-8">
+      {/* Initial full-page skeleton */}
+      {initialLoading ? (
+        <PageSkeleton />
+      ) : (
+        <div className="flex gap-0 py-8">
 
-        {/* DESKTOP SIDEBAR */}
-        <div className="hidden lg:block w-52 bg-[#141414] p-5 sticky top-24 shrink-0 border-r border-gray-800 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
-          <h2 className="text-base font-semibold mb-5">Filters</h2>
-          <FilterContent />
-        </div>
+          {/* DESKTOP SIDEBAR */}
+          <div className="hidden lg:block w-52 bg-[#141414] p-5 sticky top-24 shrink-0 border-r border-gray-800 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
+            <h2 className="text-base font-semibold mb-5">Filters</h2>
+            <FilterContent />
+          </div>
 
-        {/* MOVIES GRID */}
-        <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
-            All Movies
-            <span className="text-gray-500 font-normal text-base ml-2">({movies.length})</span>
-          </h2>
+          {/* MOVIES GRID */}
+          <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
+              All Movies
+              <span className="text-gray-500 font-normal text-base ml-2">({movies.length})</span>
+            </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-            {movies.map((movie, index) => {
-              if (movies.length === index + 1) {
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+              {movies.map((movie, index) => {
+                if (movies.length === index + 1) {
+                  return (
+                    <div ref={lastMovieRef} key={movie.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
+                      <MovieCard movie={movie} />
+                    </div>
+                  );
+                }
                 return (
-                  <div
-                    ref={lastMovieRef}
-                    key={movie.id}
-                    className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-                  >
+                  <div key={movie.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
                     <MovieCard movie={movie} />
                   </div>
                 );
-              }
-              return (
-                <div
-                  key={movie.id}
-                  className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-                >
-                  <MovieCard movie={movie} />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* SKELETON LOADER */}
-          {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-3">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="aspect-2/3 bg-gray-800 animate-pulse rounded-md" />
-              ))}
+              })}
             </div>
-          )}
+
+            {/* Infinite scroll skeleton — appended below existing cards */}
+            {loading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-3">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <MovieCardSkeleton key={i} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* BACK TO TOP */}
       {showTop && (
@@ -264,7 +301,6 @@ export default function MoviesPage() {
           <ChevronUp size={20} />
         </button>
       )}
-
     </div>
   );
 }

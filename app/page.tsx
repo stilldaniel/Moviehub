@@ -38,7 +38,7 @@ export default async function HomePage() {
         <Hero />
       </AnimatedSection>
 
-      <div className="px-6 space-y-12 pb-16">
+      <div className="px-3 space-y-12 pb-16">
         <AnimatedSection>
           <ForYouFeed />
         </AnimatedSection>
