@@ -9,6 +9,19 @@ import type { Session } from "@supabase/supabase-js";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
+// Converts a title to a URL-safe slug
+// e.g. "The Dark Knight" → "the-dark-knight"
+// e.g. "Spider-Man: No Way Home" → "spider-man-no-way-home"
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")   // remove special chars except hyphens
+    .replace(/\s+/g, "-")            // spaces → hyphens
+    .replace(/-+/g, "-")             // collapse multiple hyphens
+    .replace(/^-|-$/g, "");          // trim leading/trailing hyphens
+}
+
 export default function MovieCard({ movie }: { movie: any }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -20,10 +33,10 @@ export default function MovieCard({ movie }: { movie: any }) {
       .filter(Boolean)
       .join(", ") || "Movie";
 
-  const href =
-    movie.media_type === "tv"
-      ? `/tv/${movie.id}`
-      : `/movie/${movie.id}`;
+  // Build slug URL: /movie/155-the-dark-knight or /tv/1396-breaking-bad
+  const title = movie.title || movie.name || "";
+  const slug = title ? `${movie.id}-${toSlug(title)}` : `${movie.id}`;
+  const href = movie.media_type === "tv" ? `/tv/${slug}` : `/movie/${slug}`;
 
   useEffect(() => {
     const getSession = async () => {
@@ -51,13 +64,13 @@ export default function MovieCard({ movie }: { movie: any }) {
   }, []);
 
   const checkFavorite = async (userId: string) => {
-  const { data } = await supabase
-    .from("favorites")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("media_id", movie.id)
-    .eq("media_type", movie.media_type || "movie")
-    .limit(1);
+    const { data } = await supabase
+      .from("favorites")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("media_id", movie.id)
+      .eq("media_type", movie.media_type || "movie")
+      .limit(1);
     setIsFavorite(data !== null && data.length > 0);
   };
 
@@ -113,7 +126,7 @@ export default function MovieCard({ movie }: { movie: any }) {
       {/* Poster */}
       <img
         src={`${baseImageUrl}${movie.poster_path}`}
-        alt={movie.title || movie.name}
+        alt={title}
         className="w-full h-75 md:h-90 object-cover rounded-xl transition-transform duration-300"
       />
 
@@ -133,7 +146,7 @@ export default function MovieCard({ movie }: { movie: any }) {
       {/* Hover Overlay */}
       <div className="absolute inset-0 rounded-xl bg-linear-to-t from-black via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
         <h3 className="text-white text-base md:text-lg font-semibold leading-tight">
-          {movie.title || movie.name}
+          {title}
         </h3>
         <p className="text-gray-300 text-sm mt-1 mb-3">{genres}</p>
         <div className="flex items-center gap-2">

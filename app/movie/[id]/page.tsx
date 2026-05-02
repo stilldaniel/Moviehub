@@ -4,12 +4,19 @@ import MovieDetailsClient from "./MovieDetailsClient";
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 
+// Extracts the numeric TMDB ID from a slug like "155-the-dark-knight" → "155"
+// Also handles plain numeric IDs like "155" for backwards compatibility
+function extractId(slug: string): string {
+  return slug.split("-")[0];
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id: slug } = await params;
+  const id = extractId(slug);
 
   try {
     const res = await fetch(
@@ -23,10 +30,9 @@ export async function generateMetadata({
     }
 
     const title = movie.title || "Movie";
-    const description =
-      movie.overview
-        ? movie.overview.slice(0, 160)
-        : `Watch ${title} on MovieApp.`;
+    const description = movie.overview
+      ? movie.overview.slice(0, 160)
+      : `Watch ${title} on MovieApp.`;
     const image = movie.backdrop_path
       ? `${baseImageUrl}${movie.backdrop_path}`
       : undefined;
@@ -60,7 +66,8 @@ export default async function MovieDetails({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: slug } = await params;
+  const id = extractId(slug);
 
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&append_to_response=videos`,

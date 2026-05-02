@@ -4,12 +4,19 @@ import TVDetailsClient from "./TVDetailsClient";
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 
+// Extracts the numeric TMDB ID from a slug like "1396-breaking-bad" → "1396"
+// Also handles plain numeric IDs like "1396" for backwards compatibility
+function extractId(slug: string): string {
+  return slug.split("-")[0];
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id: slug } = await params;
+  const id = extractId(slug);
 
   try {
     const res = await fetch(
@@ -23,10 +30,9 @@ export async function generateMetadata({
     }
 
     const title = show.name || "TV Show";
-    const description =
-      show.overview
-        ? show.overview.slice(0, 160)
-        : `Watch ${title} on MovieApp.`;
+    const description = show.overview
+      ? show.overview.slice(0, 160)
+      : `Watch ${title} on MovieApp.`;
     const image = show.backdrop_path
       ? `${baseImageUrl}${show.backdrop_path}`
       : undefined;
@@ -64,7 +70,8 @@ export default async function TVDetails({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: slug } = await params;
+  const id = extractId(slug);
 
   const res = await fetch(
     `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}&append_to_response=videos`,

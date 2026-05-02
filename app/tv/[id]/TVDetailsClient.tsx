@@ -20,6 +20,14 @@ interface CastMember {
   profile_path: string | null;
 }
 
+interface SimilarShow {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  vote_average: number;
+  first_air_date: string;
+}
+
 export default function TVDetailsClient({ show }: { show: any }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("general");
@@ -32,6 +40,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
   const [user, setUser] = useState<any>(null);
   const [shareToast, setShareToast] = useState<"shared" | "copied" | null>(null);
   const [cast, setCast] = useState<CastMember[]>([]);
+  const [similar, setSimilar] = useState<SimilarShow[]>([]);
 
   const trailer = show?.videos?.results?.find(
     (v: any) => v.type === "Trailer" && v.site === "YouTube"
@@ -56,16 +65,24 @@ export default function TVDetailsClient({ show }: { show: any }) {
     );
 
     fetchCast();
+    fetchSimilar();
+
     return () => listener.subscription.unsubscribe();
   }, []);
 
   const fetchCast = async () => {
     try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/tv/${show.id}/credits?api_key=${API_KEY}`
-      );
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${show.id}/credits?api_key=${API_KEY}`);
       const data = await res.json();
       setCast((data.cast || []).slice(0, 15));
+    } catch { /* silently fail */ }
+  };
+
+  const fetchSimilar = async () => {
+    try {
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${show.id}/similar?api_key=${API_KEY}&page=1`);
+      const data = await res.json();
+      setSimilar((data.results || []).filter((s: any) => s.poster_path).slice(0, 12));
     } catch { /* silently fail */ }
   };
 
@@ -205,15 +222,12 @@ export default function TVDetailsClient({ show }: { show: any }) {
               <span className="bg-gray-700 px-2.5 py-0.5 rounded-md">
                 {show.number_of_seasons} Season{show.number_of_seasons > 1 ? "s" : ""}
               </span>
-              <span className="bg-blue-600 px-2.5 py-0.5 rounded-md text-white text-xs font-medium">
-                TV Show
-              </span>
+              <span className="bg-blue-600 px-2.5 py-0.5 rounded-md text-white text-xs font-medium">TV Show</span>
             </div>
 
             <div className="flex gap-2 flex-wrap mb-5">
               {show.genres?.map((genre: any) => (
-                <span key={genre.id}
-                  className="text-xs sm:text-sm text-gray-300 border border-gray-600 px-2.5 py-0.5 rounded-full">
+                <span key={genre.id} className="text-xs sm:text-sm text-gray-300 border border-gray-600 px-2.5 py-0.5 rounded-full">
                   {genre.name}
                 </span>
               ))}
@@ -244,9 +258,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
           {["general", "trailer", "ratings"].map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-medium capitalize transition-all cursor-pointer ${
-                activeTab === tab
-                  ? "text-white border-b-2 border-red-500"
-                  : "text-gray-500 hover:text-gray-300"
+                activeTab === tab ? "text-white border-b-2 border-red-500" : "text-gray-500 hover:text-gray-300"
               }`}>
               {tab === "general" ? "General" : tab === "trailer" ? "Trailer" : "Rate & Review"}
             </button>
@@ -258,7 +270,6 @@ export default function TVDetailsClient({ show }: { show: any }) {
           <motion.div
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           >
-            {/* About + metadata */}
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 mb-12">
               <div className="flex-1">
                 <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-3">About</h2>
@@ -300,39 +311,28 @@ export default function TVDetailsClient({ show }: { show: any }) {
               </div>
             </div>
 
-            {/* ── CAST — Netflix-style portrait cards ── */}
+            {/* CAST */}
             {cast.length > 0 && (
               <div className="mb-12">
                 <h2 className="text-lg font-semibold mb-4">Cast</h2>
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                   {cast.map((member) => (
-                    <div
-                      key={member.id}
+                    <div key={member.id}
                       className="shrink-0 rounded-xl overflow-hidden bg-[#181818] hover:bg-[#222] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/50"
-                      style={{ width: 120 }}
-                    >
-                      {/* Portrait photo */}
+                      style={{ width: 120 }}>
                       <div className="relative w-full" style={{ paddingBottom: "120%" }}>
                         {member.profile_path ? (
-                          <img
-                            src={`${profileBaseUrl}${member.profile_path}`}
-                            alt={member.name}
-                            className="absolute inset-0 w-full h-full object-cover object-top"
-                          />
+                          <img src={`${profileBaseUrl}${member.profile_path}`} alt={member.name}
+                            className="absolute inset-0 w-full h-full object-cover object-top" />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-600">
                             <FaUser size={32} />
                           </div>
                         )}
                       </div>
-                      {/* Name + character */}
                       <div className="p-2.5">
-                        <p className="text-white text-xs font-semibold leading-snug line-clamp-2">
-                          {member.name}
-                        </p>
-                        <p className="text-gray-500 text-xs mt-1 line-clamp-2 leading-snug">
-                          {member.character}
-                        </p>
+                        <p className="text-white text-xs font-semibold leading-snug line-clamp-2">{member.name}</p>
+                        <p className="text-gray-500 text-xs mt-1 line-clamp-2 leading-snug">{member.character}</p>
                       </div>
                     </div>
                   ))}
@@ -350,8 +350,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
           >
             {trailer ? (
               <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-xl shadow-lg">
-                <iframe src={`https://www.youtube.com/embed/${trailer.key}`}
-                  className="w-full h-full" allowFullScreen />
+                <iframe src={`https://www.youtube.com/embed/${trailer.key}`} className="w-full h-full" allowFullScreen />
               </div>
             ) : (
               <p className="text-gray-500 text-sm">No trailer available for this show.</p>
@@ -368,10 +367,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
             {!user ? (
               <div className="text-center py-12">
                 <p className="text-gray-400 mb-4">Sign in to rate and review this show</p>
-                <Link href="/auth/login"
-                  className="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg text-sm font-medium transition">
-                  Sign In
-                </Link>
+                <Link href="/auth/login" className="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg text-sm font-medium transition">Sign In</Link>
               </div>
             ) : (
               <div className="space-y-6">
@@ -380,16 +376,12 @@ export default function TVDetailsClient({ show }: { show: any }) {
                   <div className="flex gap-2 flex-wrap">
                     {[1,2,3,4,5,6,7,8,9,10].map((star) => (
                       <button key={star} onClick={() => setUserRating(star)}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
+                        onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)}
                         className="cursor-pointer transition-transform hover:scale-125">
-                        <FaStar size={24}
-                          className={star <= (hoverRating || userRating) ? "text-yellow-400" : "text-gray-600"} />
+                        <FaStar size={24} className={star <= (hoverRating || userRating) ? "text-yellow-400" : "text-gray-600"} />
                       </button>
                     ))}
-                    {userRating > 0 && (
-                      <span className="text-yellow-400 font-bold text-lg ml-2">{userRating}/10</span>
-                    )}
+                    {userRating > 0 && <span className="text-yellow-400 font-bold text-lg ml-2">{userRating}/10</span>}
                   </div>
                 </div>
                 <div>
@@ -403,15 +395,51 @@ export default function TVDetailsClient({ show }: { show: any }) {
                   {submittingRating ? "Saving..." : ratingSubmitted ? "Update Rating" : "Submit Rating"}
                 </button>
                 {ratingSubmitted && (
-                  <p className="text-green-400 text-sm flex items-center gap-2">
-                    <FaCheck size={12} /> Rating saved successfully!
-                  </p>
+                  <p className="text-green-400 text-sm flex items-center gap-2"><FaCheck size={12} /> Rating saved successfully!</p>
                 )}
               </div>
             )}
           </motion.div>
         )}
       </div>
+
+      {/* ── SIMILAR SHOWS — outside tabs, always visible at bottom ── */}
+      {similar.length > 0 && (
+        <div className="px-4 sm:px-6 md:px-10 lg:px-16 mt-4 pb-10">
+          <div className="border-t border-gray-800 pt-10">
+            <h2 className="text-xl font-semibold mb-5">More Like This</h2>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              {similar.map((item) => (
+                <Link key={item.id} href={`/tv/${item.id}`}>
+                  <div className="group relative rounded-xl overflow-hidden cursor-pointer transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+                    {/* Poster */}
+                    <div className="relative" style={{ paddingBottom: "150%" }}>
+                      <img
+                        src={`${posterBaseUrl}${item.poster_path}`}
+                        alt={item.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      {/* Rating badge */}
+                      <div className="absolute top-2 right-2 bg-black/80 text-yellow-400 text-xs px-1.5 py-0.5 rounded-md font-semibold flex items-center gap-1 backdrop-blur-sm">
+                        <FaStar size={9} />{item.vote_average?.toFixed(1)}
+                      </div>
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-3">
+                        <p className="text-white text-xs font-semibold line-clamp-2 leading-snug">{item.name}</p>
+                      </div>
+                    </div>
+                    {/* Title below poster */}
+                    <div className="pt-2 pb-1 px-0.5">
+                      <p className="text-white text-xs font-medium line-clamp-1">{item.name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{item.first_air_date?.split("-")[0]}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
