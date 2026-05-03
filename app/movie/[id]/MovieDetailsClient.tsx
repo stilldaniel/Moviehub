@@ -190,7 +190,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
       </motion.div>
 
       {/* MAIN CONTENT */}
-      <div className="px-4 sm:px-6 md:px-10 lg:px-16 -mt-24 sm:-mt-32 md:-mt-40 relative z-10">
+      <div className="px-4 sm:px-3 md:px-1 lg:px-1 -mt-24 sm:-mt-32 md:-mt-40 relative z-10">
 
         {/* Poster + Info */}
         <div className="flex flex-col sm:flex-row gap-6 md:gap-10">
