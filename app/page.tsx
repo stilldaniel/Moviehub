@@ -12,22 +12,23 @@ const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 export default async function HomePage() {
   const cookieStore = await cookies();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {
-          // intentionally empty - cookies can only be set in Server Actions
-        },
-      },
-    }
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const { data: { user } } = await getSafeUser(supabase.auth);
+  const supabase = supabaseUrl && supabaseAnonKey
+    ? createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll() {
+            // intentionally empty - cookies can only be set in Server Actions
+          },
+        },
+      })
+    : null;
+
+  const { data: { user } } = await getSafeUser(supabase?.auth);
 
   if (!user) {
     redirect("/auth/login");

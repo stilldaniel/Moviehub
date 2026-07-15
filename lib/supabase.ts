@@ -1,5 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
 let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
 
 type AuthClientLike = {
@@ -10,10 +13,11 @@ type AuthClientLike = {
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return null as unknown as ReturnType<typeof createBrowserClient>;
+    }
+
+    supabaseInstance = createBrowserClient(supabaseUrl, supabaseAnonKey);
   }
   return supabaseInstance;
 })();
@@ -30,7 +34,11 @@ const isRefreshTokenError = (error: { code?: string; message?: string } | null |
   );
 };
 
-export async function getSafeSession(authClient: AuthClientLike) {
+export async function getSafeSession(authClient: AuthClientLike | null | undefined) {
+  if (!authClient) {
+    return { data: { session: null }, error: null };
+  }
+
   try {
     const response = await authClient.getSession();
     if (response.error && isRefreshTokenError(response.error)) {
@@ -47,7 +55,11 @@ export async function getSafeSession(authClient: AuthClientLike) {
   }
 }
 
-export async function getSafeUser(authClient: AuthClientLike) {
+export async function getSafeUser(authClient: AuthClientLike | null | undefined) {
+  if (!authClient) {
+    return { data: { user: null }, error: null };
+  }
+
   try {
     const response = await authClient.getUser();
     if (response.error && isRefreshTokenError(response.error)) {
