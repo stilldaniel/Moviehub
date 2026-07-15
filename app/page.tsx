@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Row from "@/components/Row";
 import AnimatedSection from "@/components/AnimatedSection";
 import ForYouFeed from "@/components/ForYouFeed";
+import { getSafeUser } from "@/lib/supabase";
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
@@ -26,7 +27,7 @@ export default async function HomePage() {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getSafeUser(supabase.auth);
 
   if (!user) {
     redirect("/auth/login");

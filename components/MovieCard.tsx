@@ -4,7 +4,7 @@ import Link from "next/link";
 import { genreMap } from "@/lib/genres";
 import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
@@ -40,7 +40,7 @@ export default function MovieCard({ movie }: { movie: any }) {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       if (session?.user) {
         setUser(session.user);
         checkFavorite(session.user.id);

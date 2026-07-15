@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
 import { FaStar, FaTrash } from "react-icons/fa";
 
@@ -28,7 +28,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       if (!session?.user) {
         window.location.href = "/auth/login";
         return;
@@ -54,7 +54,7 @@ export default function HistoryPage() {
   };
 
   const clearAll = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await getSafeSession(supabase.auth);
     if (!session?.user) return;
     await supabase.from("watch_history").delete().eq("user_id", session.user.id);
     setHistory([]);

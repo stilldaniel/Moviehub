@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
 import { FaStar, FaPlay, FaPlus, FaCheck } from "react-icons/fa";
 
@@ -26,7 +26,7 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       if (!session?.user) {
         window.location.href = "/auth/login";
         return;

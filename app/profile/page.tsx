@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
 import {
   FaEdit, FaStar, FaHistory, FaTrash, FaCamera,
@@ -43,7 +43,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       if (!session?.user) { window.location.href = "/auth/login"; return; }
       setUser(session.user);
       fetchProfile(session.user.id, session.user);

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -171,7 +171,7 @@ export default function ForYouFeed() {
         let dbFavorites: SeedItem[] = [];
         let dbHistory: SeedItem[] = [];
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await getSafeSession(supabase.auth);
 
         if (session?.user) {
           const [favRes, histRes] = await Promise.all([

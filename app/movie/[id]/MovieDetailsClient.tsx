@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlay, FaPlus, FaCheck, FaStar, FaArrowLeft, FaShare, FaUser } from "react-icons/fa";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
@@ -50,7 +50,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       if (session?.user) {
         setUser(session.user);
         checkFavorite(session.user.id);

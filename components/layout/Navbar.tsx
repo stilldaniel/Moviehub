@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Search } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSafeSession } from "@/lib/supabase";
 import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 export default function Navbar() {
@@ -14,9 +14,12 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
+    setMounted(true);
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
@@ -31,7 +34,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await getSafeSession(supabase.auth);
       setUser(session?.user ?? null);
     };
     init();
@@ -71,6 +74,10 @@ export default function Navbar() {
     "U";
 
   const isAuthPage = pathname?.startsWith("/auth");
+
+  if (!mounted) {
+    return null;
+  }
 
   if (isAuthPage) return null;
 
