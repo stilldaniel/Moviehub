@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
 import MovieCard from "@/components/MovieCard";
+import { fetchRuntime } from "@/lib/tmdb";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
@@ -119,6 +120,21 @@ export default function ProfilePage() {
     items.forEach((item: any) => { (item.genre_ids || []).forEach((id: number) => { genreCounts[id] = (genreCounts[id] || 0) + 1; }); });
     const topId = Object.keys(genreCounts).sort((a, b) => genreCounts[Number(b)] - genreCounts[Number(a)])[0];
     setFavoriteGenre(topId && GENRE_MAP[Number(topId)] ? GENRE_MAP[Number(topId)] : "—");
+    backfillRuntimes(items);
+  };
+
+  // Older history entries were saved without a runtime: look them up on TMDB once and save them back
+  const backfillRuntimes = async (items: any[]) => {
+    const missing = items.filter((item) => !(item.runtime > 0));
+    if (missing.length === 0) return;
+    const found = (
+      await Promise.all(missing.map(async (item) => ({ id: item.id, runtime: await fetchRuntime(item.media_id, item.media_type) })))
+    ).filter((f): f is { id: string; runtime: number } => f.runtime !== null);
+    if (found.length === 0) return;
+    const byId = new Map(found.map((f) => [f.id, f.runtime]));
+    setHistory((prev) => prev.map((item) => (byId.has(item.id) ? { ...item, runtime: byId.get(item.id) } : item)));
+    const results = await Promise.all(found.map((f) => supabase.from("watch_history").update({ runtime: f.runtime }).eq("id", f.id)));
+    results.forEach(({ error }) => { if (error) console.error("Runtime backfill error:", error.message); });
   };
 
   const fetchRatings = async (userId: string) => {
@@ -195,16 +211,13 @@ export default function ProfilePage() {
     { value: favorites.length, label: "My List" },
     {
       value: (() => {
-        const totalMins = history.reduce((acc, item) => {
-          const runtime: number = item.runtime ?? (item.media_type === "movie" ? 120 : 45);
-          const progress: number = item.progress ?? 100;
-          return acc + Math.round(runtime * (progress / 100));
-        }, 0);
+        // Combined length of every title in the history (one episode for TV shows)
+        const totalMins = history.reduce((acc, item) => acc + (item.runtime > 0 ? item.runtime : 0), 0);
         if (totalMins === 0) return "0h";
         const h = Math.floor(totalMins / 60); const m = totalMins % 60;
         return h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
       })(),
-      label: "Watch Time",
+      label: "Total Runtime",
     },
     { value: ratings.length, label: "Reviews" },
   ];

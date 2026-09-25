@@ -9,6 +9,7 @@ import { supabase, getSafeSession } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { useFavorites } from "@/components/FavoritesProvider";
 import MovieCard from "@/components/MovieCard";
+import { runtimeFromDetails } from "@/lib/tmdb";
 import { easeSoft } from "@/components/MotionProvider";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
@@ -101,7 +102,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
     trackedRef.current = true;
     const userId = user.id;
     const genre_ids: number[] = show.genres?.map((g: any) => g.id) ?? [];
-    const runtime: number = show.episode_run_time?.[0] ?? 45;
+    const runtime: number = runtimeFromDetails(show, "tv") ?? 45;
     await supabase.from("watch_history").upsert(
       { user_id: userId, media_id: show.id, media_type: "tv", title: show.name, poster_path: show.poster_path, vote_average: show.vote_average, watched_at: new Date().toISOString(), genre_ids, runtime, progress: 100 },
       { onConflict: "user_id,media_id,media_type" }

@@ -22,3 +22,21 @@ export const getTopRated = () =>
 
 export const getPopular = () =>
   fetchFromTMDB("/movie/popular");
+
+// Runtime in minutes: the film's length, or one episode's length for a TV show.
+// Returns null when TMDB has no runtime for the title.
+export function runtimeFromDetails(details: any, mediaType: "movie" | "tv"): number | null {
+  const minutes =
+    mediaType === "movie"
+      ? details?.runtime
+      : details?.episode_run_time?.[0] ?? details?.last_episode_to_air?.runtime;
+  return minutes > 0 ? minutes : null;
+}
+
+export async function fetchRuntime(id: number, mediaType: "movie" | "tv"): Promise<number | null> {
+  try {
+    return runtimeFromDetails(await fetchFromTMDB(`/${mediaType}/${id}`), mediaType);
+  } catch {
+    return null;
+  }
+}
