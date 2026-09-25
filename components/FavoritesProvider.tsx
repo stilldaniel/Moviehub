@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, getSafeSession } from "@/lib/supabase";
 
@@ -31,12 +31,17 @@ const keyOf = (mediaId: number, mediaType: string) => `${mediaType}-${mediaId}`;
 export default function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [favoriteKeys, setFavoriteKeys] = useState<Set<string>>(new Set());
+  // Supabase also fires SIGNED_IN when it restores a saved session, so skip reloading for the same user
+  const loadedUserId = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     if (!supabase) return;
 
     const load = async (sessionUser: User | null) => {
       setUser(sessionUser);
+      const userId = sessionUser?.id ?? null;
+      if (loadedUserId.current === userId) return;
+      loadedUserId.current = userId;
       if (!sessionUser) {
         setFavoriteKeys(new Set());
         return;
