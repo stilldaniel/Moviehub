@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { genreMap } from "@/lib/genres";
 import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
-import { useEffect, useState } from "react";
-import { supabase, getSafeSession } from "@/lib/supabase";
-import type { Session } from "@supabase/supabase-js";
+import { useFavorites } from "./FavoritesProvider";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
@@ -23,8 +21,9 @@ function toSlug(title: string): string {
 }
 
 export default function MovieCard({ movie }: { movie: any }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const { isFavorite: checkIsFavorite, toggleFavorite: toggle } = useFavorites();
+  const mediaType = movie.media_type === "tv" ? "tv" : "movie";
+  const isFavorite = checkIsFavorite(movie.id, mediaType);
 
   const genres =
     movie.genre_ids
@@ -38,70 +37,17 @@ export default function MovieCard({ movie }: { movie: any }) {
   const slug = title ? `${movie.id}-${toSlug(title)}` : `${movie.id}`;
   const href = movie.media_type === "tv" ? `/tv/${slug}` : `/movie/${slug}`;
 
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await getSafeSession(supabase.auth);
-      if (session?.user) {
-        setUser(session.user);
-        checkFavorite(session.user.id);
-      }
-    };
-    getSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
-        if (session?.user) {
-          setUser(session.user);
-          checkFavorite(session.user.id);
-        } else {
-          setUser(null);
-          setIsFavorite(false);
-        }
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  const checkFavorite = async (userId: string) => {
-    const { data } = await supabase
-      .from("favorites")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("media_id", movie.id)
-      .eq("media_type", movie.media_type || "movie")
-      .limit(1);
-    setIsFavorite(data !== null && data.length > 0);
-  };
-
-  const toggleFavorite = async (e: React.MouseEvent) => {
+  const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (!user) {
-      window.location.href = "/auth/login";
-      return;
-    }
-
-    if (isFavorite) {
-      await supabase
-        .from("favorites")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("media_id", movie.id)
-        .eq("media_type", movie.media_type || "movie");
-      setIsFavorite(false);
-    } else {
-      await supabase.from("favorites").insert({
-        user_id: user.id,
-        media_id: movie.id,
-        media_type: movie.media_type || "movie",
-        title: movie.title || movie.name,
-        poster_path: movie.poster_path,
-        vote_average: movie.vote_average,
-      });
-      setIsFavorite(true);
-    }
+    toggle({
+      media_id: movie.id,
+      media_type: mediaType,
+      title,
+      poster_path: movie.poster_path,
+      vote_average: movie.vote_average,
+      genre_ids: movie.genre_ids,
+    });
   };
 
   return (

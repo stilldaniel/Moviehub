@@ -11,9 +11,15 @@ import {
   FaPlay, FaPlus,
 } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
+import { useFavorites } from "@/components/FavoritesProvider";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
-const FAKE_PROGRESS = [85, 100, 45, 100, 60, 30, 75, 20];
+
+const formatRuntime = (mins?: number | null) => {
+  if (!mins) return "";
+  const h = Math.floor(mins / 60); const m = mins % 60;
+  return h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -28,6 +34,7 @@ export default function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState("");
 
   const [favorites, setFavorites] = useState<any[]>([]);
+  const { toggleFavorite: toggleFav } = useFavorites();
   const [history, setHistory] = useState<any[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [streak, setStreak] = useState<number>(0);
@@ -162,15 +169,9 @@ export default function ProfilePage() {
 
   const toggleFavoriteItem = async (e: React.MouseEvent, item: any) => {
     e.preventDefault(); e.stopPropagation();
-    if (!user) { window.location.href = "/auth/login"; return; }
-    const isAlreadyFav = favorites.some((f) => f.media_id === item.media_id && f.media_type === item.media_type);
-    if (isAlreadyFav) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("media_id", item.media_id).eq("media_type", item.media_type);
-      setFavorites((prev) => prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type)));
-    } else {
-      await supabase.from("favorites").insert({ user_id: user.id, media_id: item.media_id, media_type: item.media_type, title: item.title, poster_path: item.poster_path, vote_average: item.vote_average, genre_ids: item.genre_ids || [] });
-      setFavorites((prev) => [...prev, { ...item, user_id: user.id }]);
-    }
+    const nowFavorite = await toggleFav({ media_id: item.media_id, media_type: item.media_type, title: item.title, poster_path: item.poster_path, vote_average: item.vote_average, genre_ids: item.genre_ids || [] });
+    if (nowFavorite === false) setFavorites((prev) => prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type)));
+    else if (nowFavorite === true) setFavorites((prev) => [{ ...item, user_id: user.id }, ...prev]);
   };
 
   const timeAgo = (dateStr: string) => {
@@ -260,7 +261,8 @@ export default function ProfilePage() {
 
   /* ── Shared progress row ── */
   const ProgressRow = ({ item, index, total }: { item: any; index: number; total: number }) => {
-    const progress: number = item.progress ?? FAKE_PROGRESS[index % FAKE_PROGRESS.length];
+    const progress: number | null = typeof item.progress === "number" && item.progress < 100 ? item.progress : null;
+    const runtime = formatRuntime(item.runtime);
     return (
       <Link href={`/${item.media_type}/${item.media_id}`}>
         <div style={{ paddingTop: 14, paddingBottom: 14, borderBottom: index < total - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", cursor: "pointer" }}>
@@ -279,16 +281,16 @@ export default function ProfilePage() {
               </div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#fff", margin: "0 0 3px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</p>
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: 0 }}>
-                {timeAgo(item.watched_at ?? item.created_at)}{item.media_type === "movie" ? " · 2h 15m" : " · 45m"}
+                {timeAgo(item.watched_at ?? item.created_at)}{runtime && ` · ${runtime}`}
               </p>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {progress !== null && <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.1)", borderRadius: 2, overflow: "hidden", position: "relative" }}>
               <div style={{ position: "absolute", top: 0, left: 0, width: `${progress}%`, height: "100%", background: "#dc2626", borderRadius: 2 }} />
             </div>
             <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", minWidth: 30, textAlign: "right", flexShrink: 0 }}>{progress}%</span>
-          </div>
+          </div>}
         </div>
       </Link>
     );
@@ -673,7 +675,7 @@ export default function ProfilePage() {
                           <span style={{ background:"#16a34a",color:"#fff",fontSize:10,fontWeight:600,padding:"2px 7px",borderRadius:999 }}>Active</span>
                         </div>
                         <p style={{ color:"rgba(255,255,255,0.4)",fontSize:11,margin:0 }}>
-                          Renews {new Date(Date.now()+9*24*60*60*1000).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · Free/Month
+                          No renewal needed · Free forever
                         </p>
                       </div>
                     </div>
@@ -712,11 +714,11 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Continue Watching */}
+                {/* Recently Watched */}
                 <div style={{ background:"#141414",borderRadius:16,padding:18 }}>
                   <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16 }}>
-                    <h2 style={{ fontSize:15,fontWeight:600,color:"#fff",margin:0 }}>Continue Watching</h2>
-                    <button onClick={()=>setActiveTab("history")} style={{ fontSize:12,color:"rgba(255,255,255,0.35)",background:"none",border:"none",cursor:"pointer" }}>Clear all</button>
+                    <h2 style={{ fontSize:15,fontWeight:600,color:"#fff",margin:0 }}>Recently Watched</h2>
+                    <button onClick={()=>setActiveTab("history")} style={{ fontSize:12,color:"rgba(255,255,255,0.35)",background:"none",border:"none",cursor:"pointer" }}>See all</button>
                   </div>
                   {history.length===0
                     ?<p style={{ color:"rgba(255,255,255,0.25)",fontSize:13,textAlign:"center",padding:"28px 0" }}>No watch history yet</p>

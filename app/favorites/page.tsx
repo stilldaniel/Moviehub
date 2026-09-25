@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
 import { FaStar, FaPlay, FaPlus, FaCheck } from "react-icons/fa";
+import { useFavorites } from "@/components/FavoritesProvider";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
@@ -22,7 +23,7 @@ interface FavoriteItem {
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const { toggleFavorite: toggleFav } = useFavorites();
 
   useEffect(() => {
     const init = async () => {
@@ -31,7 +32,6 @@ export default function FavoritesPage() {
         window.location.href = "/auth/login";
         return;
       }
-      setUser(session.user);
       fetchFavorites(session.user.id);
     };
     init();
@@ -50,31 +50,18 @@ export default function FavoritesPage() {
   const toggleFavorite = async (e: React.MouseEvent, item: FavoriteItem) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) { window.location.href = "/auth/login"; return; }
-
-    const isAlreadyFav = favorites.some(
-      (f) => f.media_id === item.media_id && f.media_type === item.media_type
-    );
-
-    if (isAlreadyFav) {
-      await supabase.from("favorites").delete()
-        .eq("user_id", user.id)
-        .eq("media_id", item.media_id)
-        .eq("media_type", item.media_type);
+    const nowFavorite = await toggleFav({
+      media_id: item.media_id,
+      media_type: item.media_type === "tv" ? "tv" : "movie",
+      title: item.title,
+      poster_path: item.poster_path,
+      vote_average: item.vote_average,
+      genre_ids: item.genre_ids,
+    });
+    if (nowFavorite === false) {
       setFavorites((prev) =>
         prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type))
       );
-    } else {
-      await supabase.from("favorites").insert({
-        user_id: user.id,
-        media_id: item.media_id,
-        media_type: item.media_type,
-        title: item.title,
-        poster_path: item.poster_path,
-        vote_average: item.vote_average,
-        genre_ids: item.genre_ids || [],
-      });
-      setFavorites((prev) => [...prev, { ...item, user_id: user.id }]);
     }
   };
 

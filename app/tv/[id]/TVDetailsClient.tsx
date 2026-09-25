@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlay, FaPlus, FaCheck, FaStar, FaArrowLeft, FaShare, FaUser } from "react-icons/fa";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
+import { useFavorites } from "@/components/FavoritesProvider";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
@@ -32,7 +33,6 @@ interface SimilarShow {
 export default function TVDetailsClient({ show }: { show: any }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("general");
-  const [isFavorite, setIsFavorite] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [review, setReview] = useState("");
@@ -42,7 +42,8 @@ export default function TVDetailsClient({ show }: { show: any }) {
   const [shareToast, setShareToast] = useState<"shared" | "copied" | null>(null);
   const [cast, setCast] = useState<CastMember[]>([]);
   const [similar, setSimilar] = useState<SimilarShow[]>([]);
-  const [similarFavorites, setSimilarFavorites] = useState<Set<number>>(new Set());
+  const { isFavorite: checkIsFavorite, toggleFavorite: toggleFav } = useFavorites();
+  const isFavorite = checkIsFavorite(show.id, "tv");
 
   const trailer = show?.videos?.results?.find(
     (v: any) => v.type === "Trailer" && v.site === "YouTube"
@@ -53,9 +54,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
       const { data: { session } } = await getSafeSession(supabase.auth);
       if (session?.user) {
         setUser(session.user);
-        checkFavorite(session.user.id);
         fetchUserRating(session.user.id);
-        trackWatchHistory(session.user.id);
       }
     };
     getSession();
@@ -83,12 +82,6 @@ export default function TVDetailsClient({ show }: { show: any }) {
     } catch { /* silently fail */ }
   };
 
-  const checkFavorite = async (userId: string) => {
-    const { data } = await supabase.from("favorites").select("id")
-      .eq("user_id", userId).eq("media_id", show.id).eq("media_type", "tv").limit(1);
-    setIsFavorite(data !== null && data.length > 0);
-  };
-
   const fetchUserRating = async (userId: string) => {
     const { data } = await supabase.from("ratings").select("rating, review")
       .eq("user_id", userId).eq("media_id", show.id).eq("media_type", "tv").limit(1);
@@ -99,7 +92,12 @@ export default function TVDetailsClient({ show }: { show: any }) {
     }
   };
 
-  const trackWatchHistory = async (userId: string) => {
+  // Record a view only when the user actually plays the trailer (the only playback the app offers)
+  const trackedRef = useRef(false);
+  const trackWatchHistory = async () => {
+    if (!user || trackedRef.current) return;
+    trackedRef.current = true;
+    const userId = user.id;
     const genre_ids: number[] = show.genres?.map((g: any) => g.id) ?? [];
     const runtime: number = show.episode_run_time?.[0] ?? 45;
     await supabase.from("watch_history").upsert(
@@ -108,34 +106,19 @@ export default function TVDetailsClient({ show }: { show: any }) {
     );
   };
 
-  const toggleFavorite = async () => {
-    if (!user) { window.location.href = "/auth/login"; return; }
-    if (isFavorite) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("media_id", show.id).eq("media_type", "tv");
-      setIsFavorite(false);
-    } else {
-      const genre_ids: number[] = show.genres?.map((g: any) => g.id) ?? [];
-      await supabase.from("favorites").insert({ user_id: user.id, media_id: show.id, media_type: "tv", title: show.name, poster_path: show.poster_path, vote_average: show.vote_average, genre_ids });
-      setIsFavorite(true);
-    }
-  };
+  const toggleFavorite = () =>
+    toggleFav({
+      media_id: show.id, media_type: "tv", title: show.name, poster_path: show.poster_path,
+      vote_average: show.vote_average, genre_ids: show.genres?.map((g: any) => g.id) ?? [],
+    });
 
-  const toggleSimilarFavorite = async (e: React.MouseEvent, item: SimilarShow) => {
+  const toggleSimilarFavorite = (e: React.MouseEvent, item: SimilarShow) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) { window.location.href = "/auth/login"; return; }
-    const isFav = similarFavorites.has(item.id);
-    if (isFav) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("media_id", item.id).eq("media_type", "tv");
-      setSimilarFavorites((prev) => { const next = new Set(prev); next.delete(item.id); return next; });
-    } else {
-      await supabase.from("favorites").insert({
-        user_id: user.id, media_id: item.id, media_type: "tv",
-        title: item.name, poster_path: item.poster_path,
-        vote_average: item.vote_average, genre_ids: item.genre_ids || [],
-      });
-      setSimilarFavorites((prev) => new Set(prev).add(item.id));
-    }
+    toggleFav({
+      media_id: item.id, media_type: "tv", title: item.name, poster_path: item.poster_path,
+      vote_average: item.vote_average, genre_ids: item.genre_ids || [],
+    });
   };
 
   const handleShare = async () => {
@@ -212,7 +195,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
             </div>
             <div className="flex gap-3 flex-wrap">
               {trailer && (
-                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" onClick={trackWatchHistory} className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
                   <FaPlay size={12} /> Watch Trailer
                 </Link>
               )}
@@ -230,7 +213,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
         {/* TABS */}
         <div className="flex gap-6 mt-8 border-b border-gray-800 mb-6">
           {["general", "trailer", "ratings"].map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
+            <button key={tab} onClick={() => { setActiveTab(tab); if (tab === "trailer" && trailer) trackWatchHistory(); }}
               className={`pb-3 text-sm font-medium capitalize transition-all cursor-pointer ${activeTab === tab ? "text-white border-b-2 border-red-500" : "text-gray-500 hover:text-gray-300"}`}>
               {tab === "general" ? "General" : tab === "trailer" ? "Trailer" : "Rate & Review"}
             </button>
@@ -331,7 +314,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
             <h2 className="text-xl font-semibold mb-5">More Like This</h2>
             <div className="flex gap-4 overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide pb-2">
               {similar.map((item) => {
-                const isFav = similarFavorites.has(item.id);
+                const isFav = checkIsFavorite(item.id, "tv");
                 return (
                   <Link
                     key={item.id}
