@@ -4,14 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
 import {
-  FaEdit, FaStar, FaHistory, FaTrash, FaCamera,
+  FaEdit, FaHistory, FaTrash, FaCamera,
   FaLock, FaSignOutAlt, FaCheck, FaTimes,
   FaThLarge, FaBookmark, FaCog, FaCalendarAlt,
   FaGift, FaCrown, FaUser, FaFire, FaFilm,
-  FaPlay, FaPlus,
 } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
-import { useFavorites } from "@/components/FavoritesProvider";
+import MovieCard from "@/components/MovieCard";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
@@ -34,7 +33,6 @@ export default function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState("");
 
   const [favorites, setFavorites] = useState<any[]>([]);
-  const { toggleFavorite: toggleFav } = useFavorites();
   const [history, setHistory] = useState<any[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [streak, setStreak] = useState<number>(0);
@@ -167,12 +165,8 @@ export default function ProfilePage() {
   const handleLogout = async () => { await supabase.auth.signOut(); window.location.href = "/auth/login"; };
   const handleDeleteAccount = async () => { await supabase.auth.signOut(); window.location.href = "/auth/login"; };
 
-  const toggleFavoriteItem = async (e: React.MouseEvent, item: any) => {
-    e.preventDefault(); e.stopPropagation();
-    const nowFavorite = await toggleFav({ media_id: item.media_id, media_type: item.media_type, title: item.title, poster_path: item.poster_path, vote_average: item.vote_average, genre_ids: item.genre_ids || [] });
-    if (nowFavorite === false) setFavorites((prev) => prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type)));
-    else if (nowFavorite === true) setFavorites((prev) => [{ ...item, user_id: user.id }, ...prev]);
-  };
+  const removeFavorite = (item: any) =>
+    setFavorites((prev) => prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type)));
 
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -229,35 +223,16 @@ export default function ProfilePage() {
     { name: "Premium",  price: "$14.99", priceUnit: "/mo", current: false, features: ["4K + HDR","4 screens","Download on 6","All Content"] },
   ];
 
-  /* ── Shared poster card ── */
-  const PosterCard = ({ item }: { item: any }) => {
-    const isFav = favorites.some((f) => f.media_id === item.media_id && f.media_type === item.media_type);
-    return (
-      <Link href={`/${item.media_type}/${item.media_id}`} className="prof-poster-card">
-        <img src={`${baseImageUrl}${item.poster_path}`} alt={item.title}
-          style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", borderRadius: 10, display: "block" }} />
-        <div style={{ position: "absolute", top: 6, right: 6, background: "rgba(0,0,0,0.9)", color: "#facc15", fontSize: 10, padding: "2px 6px", borderRadius: 5, display: "flex", alignItems: "center", gap: 3, fontWeight: 700, zIndex: 30 }}>
-          <FaStar size={8} />{item.vote_average?.toFixed(1)}
-        </div>
-        {item.media_type === "tv" && (
-          <div style={{ position: "absolute", top: 6, left: 6, background: "rgba(37,99,235,0.9)", color: "#fff", fontSize: 10, padding: "2px 6px", borderRadius: 5, fontWeight: 700, zIndex: 30 }}>TV</div>
-        )}
-        <div className="prof-poster-overlay">
-          <p style={{ color: "#fff", fontSize: 12, fontWeight: 700, margin: "0 0 2px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</p>
-          <p style={{ color: "#9ca3af", fontSize: 10, margin: "0 0 6px 0" }}>{item.media_type === "tv" ? "TV Show" : "Movie"}</p>
-          <div style={{ display: "flex", gap: 5 }}>
-            <div style={{ flex: 1, background: "#dc2626", color: "#fff", fontSize: 10, padding: "5px 0", borderRadius: 6, fontWeight: 600, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
-              <FaPlay size={7} /> Play
-            </div>
-            <button onClick={(e) => toggleFavoriteItem(e, item)}
-              style={{ background: isFav ? "#dc2626" : "rgba(75,85,99,0.9)", color: "#fff", border: "none", padding: "5px 8px", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center" }}>
-              {isFav ? <FaCheck size={9} /> : <FaPlus size={9} />}
-            </button>
-          </div>
-        </div>
-      </Link>
-    );
-  };
+  /* ── Shared poster card (a plain function, not a component, so cards don't remount on every render) ── */
+  const renderPoster = (item: any, index: number) => (
+    <MovieCard
+      key={item.id}
+      variant="grid"
+      index={index}
+      movie={{ id: item.media_id, media_type: item.media_type, title: item.title, poster_path: item.poster_path, vote_average: item.vote_average, genre_ids: item.genre_ids }}
+      onFavoriteChange={(isFavorite) => { if (!isFavorite) removeFavorite(item); }}
+    />
+  );
 
   /* ── Shared progress row ── */
   const ProgressRow = ({ item, index, total }: { item: any; index: number; total: number }) => {
@@ -453,19 +428,6 @@ export default function ProfilePage() {
         }
 
         /* ── Poster card hover ── */
-        .prof-poster-card{
-          position:relative;display:block;border-radius:10px;
-          overflow:hidden;cursor:pointer;
-          transition:transform 0.3s ease,box-shadow 0.3s ease;
-        }
-        .prof-poster-card:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 12px 36px rgba(239,68,68,0.3);}
-        .prof-poster-overlay{
-          position:absolute;inset:0;border-radius:10px;opacity:0;
-          transition:opacity 0.3s;display:flex;flex-direction:column;
-          justify-content:flex-end;padding:10px;
-          background:linear-gradient(to top,black 0%,rgba(0,0,0,0.7) 50%,transparent 100%);
-        }
-        .prof-poster-card:hover .prof-poster-overlay{opacity:1;}
 
         /* ── Poster grids ── */
         .prof-grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
@@ -737,7 +699,7 @@ export default function ProfilePage() {
                   </div>
                   {favorites.length===0
                     ?<p style={{ color:"rgba(255,255,255,0.25)",fontSize:13,textAlign:"center",padding:"28px 0" }}>Nothing saved yet</p>
-                    :<div className="prof-grid-4">{favorites.slice(0,8).map((item)=><PosterCard key={item.id} item={item} />)}</div>
+                    :<div className="prof-grid-4">{favorites.slice(0,8).map(renderPoster)}</div>
                   }
                 </div>
               </>
@@ -756,7 +718,7 @@ export default function ProfilePage() {
                     <Link href="/" style={{ background:"#dc2626",color:"#fff",padding:"8px 20px",borderRadius:12,fontSize:13,textDecoration:"none" }}>Browse Movies</Link>
                   </div>
                 ):(
-                  <div className="prof-grid-5">{favorites.map((item)=><PosterCard key={item.id} item={item} />)}</div>
+                  <div className="prof-grid-5">{favorites.map(renderPoster)}</div>
                 )}
               </div>
             )}

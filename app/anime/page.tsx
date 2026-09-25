@@ -267,14 +267,14 @@ export default function AnimePage() {
               {anime.map((item, index) => {
                 if (anime.length === index + 1) {
                   return (
-                    <div ref={lastAnimeRef} key={item.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
-                      <MovieCard movie={item} />
+                    <div ref={lastAnimeRef} key={item.id}>
+                      <MovieCard movie={item} variant="grid" index={index % 20} />
                     </div>
                   );
                 }
                 return (
-                  <div key={item.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
-                    <MovieCard movie={item} />
+                  <div key={item.id}>
+                    <MovieCard movie={item} variant="grid" index={index % 20} />
                   </div>
                 );
               })}

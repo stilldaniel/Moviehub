@@ -194,13 +194,8 @@ function SearchResults() {
       {!loading && filtered.length > 0 && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            {filtered.map((item) => (
-              <div
-                key={`${item.media_type}-${item.id}`}
-                className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-              >
-                <MovieCard movie={item} />
-              </div>
+            {filtered.map((item, i) => (
+              <MovieCard key={`${item.media_type}-${item.id}`} movie={item} variant="grid" index={i} />
             ))}
           </div>
 
@@ -217,13 +212,8 @@ function SearchResults() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {recommendations.map((item) => (
-                  <div
-                    key={`rec-${item.media_type}-${item.id}`}
-                    className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!"
-                  >
-                    <MovieCard movie={item} />
-                  </div>
+                {recommendations.map((item, i) => (
+                  <MovieCard key={`rec-${item.media_type}-${item.id}`} movie={item} variant="grid" index={i} />
                 ))}
               </div>
             </section>

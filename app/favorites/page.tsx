@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
-import { FaStar, FaPlay, FaPlus, FaCheck } from "react-icons/fa";
-import { useFavorites } from "@/components/FavoritesProvider";
-
-const baseImageUrl = "https://image.tmdb.org/t/p/w500";
+import MovieCard from "@/components/MovieCard";
 
 interface FavoriteItem {
   id: string;
@@ -23,7 +20,6 @@ interface FavoriteItem {
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toggleFavorite: toggleFav } = useFavorites();
 
   useEffect(() => {
     const init = async () => {
@@ -47,23 +43,10 @@ export default function FavoritesPage() {
     setLoading(false);
   };
 
-  const toggleFavorite = async (e: React.MouseEvent, item: FavoriteItem) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const nowFavorite = await toggleFav({
-      media_id: item.media_id,
-      media_type: item.media_type === "tv" ? "tv" : "movie",
-      title: item.title,
-      poster_path: item.poster_path,
-      vote_average: item.vote_average,
-      genre_ids: item.genre_ids,
-    });
-    if (nowFavorite === false) {
-      setFavorites((prev) =>
-        prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type))
-      );
-    }
-  };
+  const removeFromList = (item: FavoriteItem) =>
+    setFavorites((prev) =>
+      prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type))
+    );
 
   if (loading) {
     return (
@@ -78,7 +61,7 @@ export default function FavoritesPage() {
 
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">My Favorites</h1>
-        <p className="text-gray-400 text-sm mt-1">{favorites.length} saved titles</p>
+        <p className="text-gray-400 text-sm mt-1">{favorites.length} saved {favorites.length === 1 ? "title" : "titles"}</p>
       </div>
 
       {favorites.length === 0 ? (
@@ -95,70 +78,22 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-          {favorites.map((item) => {
-            const isFav = favorites.some(
-              (f) => f.media_id === item.media_id && f.media_type === item.media_type
-            );
-            return (
-              <Link
-                key={item.id}
-                href={`/${item.media_type}/${item.media_id}`}
-                className="relative group cursor-pointer block transform transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-105 hover:shadow-[0_10px_40px_rgba(239,68,68,0.35)]"
-              >
-                {/* Poster */}
-                <img
-                  src={`${baseImageUrl}${item.poster_path}`}
-                  alt={item.title}
-                  className="w-full object-cover rounded-xl"
-                  style={{ aspectRatio: "2/3" }}
-                />
-
-                {/* Rating badge */}
-                <div className="absolute top-3 right-3 bg-black/90 text-yellow-400 text-sm px-2.5 py-1 rounded-md font-semibold backdrop-blur-sm flex items-center gap-1">
-                  <FaStar size={11} className="text-yellow-400" />
-                  {item.vote_average?.toFixed(1)}
-                </div>
-
-                {/* TV badge */}
-                {item.media_type === "tv" && (
-                  <div className="absolute top-3 left-3 bg-blue-600/90 text-white text-xs px-2 py-0.5 rounded-md font-medium backdrop-blur-sm">
-                    TV
-                  </div>
-                )}
-
-                {/* Hover overlay — matches MovieCard exactly */}
-                <div
-                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4"
-                  style={{ background: "linear-gradient(to top, black, rgba(0,0,0,0.7), transparent)" }}
-                >
-                  <h3 className="text-white text-base md:text-lg font-semibold leading-tight truncate">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-300 text-sm mt-1 mb-3">
-                    {item.media_type === "tv" ? "TV Show" : "Movie"}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    {/* Play button */}
-                    <div className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-md font-medium text-center transition flex items-center justify-center gap-2">
-                      <FaPlay size={12} />
-                      Play
-                    </div>
-                    {/* Favorite toggle */}
-                    <button
-                      onClick={(e) => toggleFavorite(e, item)}
-                      className={`px-3 py-2 rounded-md font-semibold transition flex items-center justify-center cursor-pointer ${
-                        isFav
-                          ? "bg-red-600 hover:bg-red-700 text-white"
-                          : "bg-gray-700/90 hover:bg-gray-600 text-white"
-                      }`}
-                    >
-                      {isFav ? <FaCheck size={14} /> : <FaPlus size={14} />}
-                    </button>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {favorites.map((item, i) => (
+            <MovieCard
+              key={item.id}
+              variant="grid"
+              index={i}
+              movie={{
+                id: item.media_id,
+                media_type: item.media_type,
+                title: item.title,
+                poster_path: item.poster_path,
+                vote_average: item.vote_average,
+                genre_ids: item.genre_ids,
+              }}
+              onFavoriteChange={(isFavorite) => { if (!isFavorite) removeFromList(item); }}
+            />
+          ))}
         </div>
       )}
     </div>

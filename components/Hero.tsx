@@ -4,6 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaPlay, FaInfoCircle, FaStar } from "react-icons/fa";
+import { easeSoft } from "./MotionProvider";
+
+// Text blocks rise in one after another once the backdrop has started to settle
+const content = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.25 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: easeSoft } },
+};
 
 const baseImageUrl = "https://image.tmdb.org/t/p/original";
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
@@ -55,10 +66,10 @@ export default function Hero() {
 
       {/* Cinematic Background */}
       <motion.div
-        initial={{ scale: 1.1, opacity: 0 }}
+        initial={{ scale: 1.08, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
+        transition={{ opacity: { duration: 0.9, ease: "easeOut" }, scale: { duration: 2.4, ease: easeSoft } }}
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url(${baseImageUrl}${movie.backdrop_path})`,
         }}
@@ -70,14 +81,14 @@ export default function Hero() {
 
       {/* Content */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease: "easeOut" }}
+        variants={content}
+        initial="hidden"
+        animate="show"
         className="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 md:px-16 max-w-2xl"
       >
 
         {/* Trending + Rating */}
-        <div className="flex items-center gap-3 mb-3">
+        <motion.div variants={item} className="flex items-center gap-3 mb-3">
           <span className="bg-red-600 text-white text-xs sm:text-sm font-semibold px-3 py-1 rounded-md tracking-wide">
             TRENDING NOW
           </span>
@@ -85,20 +96,20 @@ export default function Hero() {
             <FaStar size={14} />
             {movie.vote_average?.toFixed(1) ?? "N/A"}
           </span>
-        </div>
+        </motion.div>
 
         {/* Title */}
-        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
+        <motion.h1 variants={item} className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
           {movie.title}
-        </h1>
+        </motion.h1>
 
         {/* Description */}
-        <p className="text-gray-300 mb-4 text-sm sm:text-base md:text-lg leading-relaxed line-clamp-3 md:line-clamp-none">
+        <motion.p variants={item} className="text-gray-300 mb-4 text-sm sm:text-base md:text-lg leading-relaxed line-clamp-3 md:line-clamp-none">
           {movie.overview}
-        </p>
+        </motion.p>
 
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-3 text-gray-400 text-sm mb-6">
+        <motion.div variants={item} className="flex flex-wrap items-center gap-3 text-gray-400 text-sm mb-6">
           <span>{movie.release_date?.split("-")[0]}</span>
           {movie.runtime && (
             <>
@@ -114,24 +125,24 @@ export default function Hero() {
               </span>
             </>
           )}
-        </div>
+        </motion.div>
 
         {/* Buttons */}
-        <div className="flex flex-wrap gap-3">
+        <motion.div variants={item} className="flex flex-wrap gap-3">
           <Link href={`/movie/${movie.id}`}>
-            <button className="bg-red-600 hover:bg-red-700 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition cursor-pointer flex items-center gap-2">
+            <button className="bg-red-600 hover:bg-red-700 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition duration-300 ease-soft active:scale-[0.97] cursor-pointer flex items-center gap-2">
               <FaPlay size={14} />
               Watch Now
             </button>
           </Link>
 
           <Link href={`/movie/${movie.id}`}>
-            <button className="bg-gray-700/80 hover:bg-gray-600 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition cursor-pointer flex items-center gap-2">
+            <button className="bg-gray-700/80 hover:bg-gray-600 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition duration-300 ease-soft active:scale-[0.97] cursor-pointer flex items-center gap-2">
               <FaInfoCircle size={16} />
               More Info
             </button>
           </Link>
-        </div>
+        </motion.div>
 
       </motion.div>
 

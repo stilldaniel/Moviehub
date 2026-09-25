@@ -267,14 +267,14 @@ export default function MoviesPage() {
               {movies.map((movie, index) => {
                 if (movies.length === index + 1) {
                   return (
-                    <div ref={lastMovieRef} key={movie.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
-                      <MovieCard movie={movie} />
+                    <div ref={lastMovieRef} key={movie.id}>
+                      <MovieCard movie={movie} variant="grid" index={index % 20} />
                     </div>
                   );
                 }
                 return (
-                  <div key={movie.id} className="w-full [&>a]:w-full! [&>a>img]:h-auto! [&>a>img]:aspect-2/3!">
-                    <MovieCard movie={movie} />
+                  <div key={movie.id}>
+                    <MovieCard movie={movie} variant="grid" index={index % 20} />
                   </div>
                 );
               })}

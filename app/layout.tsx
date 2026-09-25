@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
 import FavoritesProvider from "../components/FavoritesProvider";
+import MotionProvider from "../components/MotionProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -35,10 +36,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-black text-white">
-        <FavoritesProvider>
-          <Navbar />
-          <main>{children}</main>
-        </FavoritesProvider>
+        <MotionProvider>
+          <FavoritesProvider>
+            <Navbar />
+            <main>{children}</main>
+          </FavoritesProvider>
+        </MotionProvider>
       </body>
     </html>
   );

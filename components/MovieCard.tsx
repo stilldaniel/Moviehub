@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { genreMap } from "@/lib/genres";
 import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
 import { useFavorites } from "./FavoritesProvider";
@@ -20,27 +21,42 @@ function toSlug(title: string): string {
     .replace(/^-|-$/g, "");          // trim leading/trailing hyphens
 }
 
-export default function MovieCard({ movie }: { movie: any }) {
+export default function MovieCard({
+  movie,
+  variant = "row",
+  index = 0,
+  onFavoriteChange,
+}: {
+  movie: any;
+  // "row" = fixed width for horizontal rows, "grid" = fills its grid cell
+  variant?: "row" | "grid";
+  // Position in the list, used to stagger the entrance animation
+  index?: number;
+  onFavoriteChange?: (isFavorite: boolean) => void;
+}) {
   const { isFavorite: checkIsFavorite, toggleFavorite: toggle } = useFavorites();
+  const [loaded, setLoaded] = useState(false);
+
   const mediaType = movie.media_type === "tv" ? "tv" : "movie";
   const isFavorite = checkIsFavorite(movie.id, mediaType);
 
-  const genres =
-    movie.genre_ids
-      ?.slice(0, 2)
-      .map((id: number) => genreMap[id])
-      .filter(Boolean)
-      .join(", ") || "Movie";
+  const genres = movie.genre_ids
+    ?.slice(0, 2)
+    .map((id: number) => genreMap[id])
+    .filter(Boolean)
+    .join(", ");
+  const year = (movie.release_date || movie.first_air_date)?.slice(0, 4);
+  const meta = [year, genres || (mediaType === "tv" ? "TV Show" : "Movie")].filter(Boolean).join(" · ");
 
   // Build slug URL: /movie/155-the-dark-knight or /tv/1396-breaking-bad
   const title = movie.title || movie.name || "";
   const slug = title ? `${movie.id}-${toSlug(title)}` : `${movie.id}`;
-  const href = movie.media_type === "tv" ? `/tv/${slug}` : `/movie/${slug}`;
+  const href = `/${mediaType}/${slug}`;
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggle({
+    const result = await toggle({
       media_id: movie.id,
       media_type: mediaType,
       title,
@@ -48,68 +64,62 @@ export default function MovieCard({ movie }: { movie: any }) {
       vote_average: movie.vote_average,
       genre_ids: movie.genre_ids,
     });
+    if (result !== null) onFavoriteChange?.(result);
   };
 
   return (
     <Link
       href={href}
-      className="
-      relative
-      group
-      cursor-pointer
-      shrink-0
-      w-50 md:w-60
-      transform
-      transition-all
-      duration-300
-      ease-out
-      hover:-translate-y-2
-      hover:scale-105
-      hover:shadow-[0_10px_40px_rgba(239,68,68,0.35)]
-      block
-      "
+      className={`poster-card ${variant === "row" ? "w-40 sm:w-48 md:w-56" : "w-full"}`}
+      style={{ "--i": index } as React.CSSProperties}
     >
-      {/* Poster */}
-      <img
-        src={`${baseImageUrl}${movie.poster_path}`}
-        alt={title}
-        className="w-full h-75 md:h-90 object-cover rounded-xl transition-transform duration-300"
-      />
+      <div className="poster-frame">
+        {movie.poster_path ? (
+          <img
+            src={`${baseImageUrl}${movie.poster_path}`}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            data-loaded={loaded}
+            onLoad={() => setLoaded(true)}
+            ref={(img) => {
+              // Cached images can finish loading before React attaches onLoad
+              if (img?.complete && img.naturalWidth > 0 && !loaded) setLoaded(true);
+            }}
+            className="poster-img"
+          />
+        ) : (
+          <div className="poster-fallback">{title}</div>
+        )}
 
-      {/* Rating badge */}
-      <div className="absolute top-3 right-3 bg-black/90 text-yellow-400 text-sm px-2.5 py-1 rounded-md font-semibold backdrop-blur-sm flex items-center gap-1">
-        <FaStar size={11} className="text-yellow-400" />
-        {movie.vote_average?.toFixed(1)}
-      </div>
-
-      {/* Media type badge */}
-      {movie.media_type === "tv" && (
-        <div className="absolute top-3 left-3 bg-blue-600/90 text-white text-xs px-2 py-0.5 rounded-md font-medium backdrop-blur-sm">
-          TV
-        </div>
-      )}
-
-      {/* Hover Overlay */}
-      <div className="absolute inset-0 rounded-xl bg-linear-to-t from-black via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-        <h3 className="text-white text-base md:text-lg font-semibold leading-tight">
-          {title}
-        </h3>
-        <p className="text-gray-300 text-sm mt-1 mb-3">{genres}</p>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-md font-medium text-center transition flex items-center justify-center gap-2">
-            <FaPlay size={12} />
-            Play
+        {movie.vote_average > 0 && (
+          <div className="poster-badge right-2 text-yellow-400">
+            <FaStar size={9} />
+            {movie.vote_average.toFixed(1)}
           </div>
-          <button
-            onClick={toggleFavorite}
-            className={`px-3 py-2 rounded-md font-semibold transition text-center flex items-center justify-center cursor-pointer ${
-              isFavorite
-                ? "bg-red-600 hover:bg-red-700 text-white"
-                : "bg-gray-700/90 hover:bg-gray-600 text-white"
-            }`}
-          >
-            {isFavorite ? <FaCheck size={14} /> : <FaPlus size={14} />}
-          </button>
+        )}
+        {mediaType === "tv" && <div className="poster-badge left-2 text-white/90">TV</div>}
+
+        <div className="poster-shade" />
+
+        <div className="poster-info">
+          <h3 className="poster-title">{title}</h3>
+          <p className="poster-meta">{meta}</p>
+          <div className="poster-actions">
+            <div className="poster-play">
+              <FaPlay size={10} />
+              Play
+            </div>
+            <button
+              type="button"
+              onClick={toggleFavorite}
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+              className="poster-fav"
+            >
+              {isFavorite ? <FaCheck size={11} /> : <FaPlus size={11} />}
+            </button>
+          </div>
         </div>
       </div>
     </Link>

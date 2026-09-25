@@ -317,11 +317,11 @@ export default function ForYouFeed() {
           <h2 className="text-xl font-semibold">For You</h2>
           <p className="text-sm text-gray-400">Building your personal feed…</p>
         </div>
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+        <div className="flex gap-4 overflow-hidden pt-3 pb-6 -mt-3 -mb-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="shrink-0 w-36 aspect-2/3 animate-pulse rounded-xl bg-gray-800"
+              className="shrink-0 w-40 sm:w-48 md:w-56 aspect-2/3 animate-pulse rounded-xl bg-[#161616]"
             />
           ))}
         </div>
@@ -343,9 +343,9 @@ export default function ForYouFeed() {
         
       </div>
 
-      <div className="flex gap-4 overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide pb-2">
-        {recommendations.map((item) => (
-          <MovieCard key={`${item.media_type}-${item.id}`} movie={item} />
+      <div className="poster-row">
+        {recommendations.map((item, i) => (
+          <MovieCard key={`${item.media_type}-${item.id}`} movie={item} index={i} />
         ))}
       </div>
     </div>

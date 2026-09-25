@@ -9,12 +9,11 @@ function RowSkeleton() {
       {/* Title skeleton */}
       <div className="h-6 w-40 bg-gray-800 rounded-md animate-pulse" />
       {/* Cards skeleton */}
-      <div className="flex gap-4 overflow-hidden pb-2">
+      <div className="flex gap-4 overflow-hidden pt-3 pb-6 -mt-3 -mb-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className="shrink-0 w-40 md:w-48 rounded-xl bg-gray-800 animate-pulse"
-            style={{ height: 240 }}
+            className="shrink-0 w-40 sm:w-48 md:w-56 aspect-2/3 rounded-xl bg-[#161616] animate-pulse"
           />
         ))}
       </div>
@@ -63,9 +62,9 @@ export default function Row({
   return (
     <div className="space-y-2">
       <h2 className="text-xl font-semibold">{title}</h2>
-      <div className="flex gap-4 overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide pb-2">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+      <div className="poster-row">
+        {movies.map((movie, i) => (
+          <MovieCard key={movie.id} movie={movie} index={i} />
         ))}
       </div>
     </div>

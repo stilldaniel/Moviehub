@@ -8,6 +8,8 @@ import { FaPlay, FaPlus, FaCheck, FaStar, FaArrowLeft, FaShare, FaUser } from "r
 import { supabase, getSafeSession } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { useFavorites } from "@/components/FavoritesProvider";
+import MovieCard from "@/components/MovieCard";
+import { easeSoft } from "@/components/MotionProvider";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
@@ -112,15 +114,6 @@ export default function TVDetailsClient({ show }: { show: any }) {
       vote_average: show.vote_average, genre_ids: show.genres?.map((g: any) => g.id) ?? [],
     });
 
-  const toggleSimilarFavorite = (e: React.MouseEvent, item: SimilarShow) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleFav({
-      media_id: item.id, media_type: "tv", title: item.name, poster_path: item.poster_path,
-      vote_average: item.vote_average, genre_ids: item.genre_ids || [],
-    });
-  };
-
   const handleShare = async () => {
     const url = window.location.href;
     const shareData = { title: show.name, text: `Check out ${show.name} on MovieApp!`, url };
@@ -159,7 +152,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
 
       {/* HERO BACKDROP */}
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.1, ease: "easeOut" }}
         className="relative h-[35vh] sm:h-[45vh] md:h-[55vh] bg-cover bg-center"
         style={{ backgroundImage: `url(${imageBaseUrl}${show.backdrop_path})` }}
       >
@@ -177,10 +170,10 @@ export default function TVDetailsClient({ show }: { show: any }) {
 
         {/* Poster + Info */}
         <div className="flex flex-col sm:flex-row gap-6 md:gap-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="shrink-0 w-36 sm:w-44 md:w-52 lg:w-60">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: easeSoft }} className="shrink-0 w-36 sm:w-44 md:w-52 lg:w-60">
             <img src={`${posterBaseUrl}${show.poster_path}`} alt={show.name} className="w-full rounded-xl shadow-2xl" />
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }} className="flex-1 pt-2 sm:pt-8 md:pt-16">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: easeSoft }} className="flex-1 pt-2 sm:pt-8 md:pt-16">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">{show.name}</h1>
             <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
               <span className="bg-yellow-500 text-black px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1"><FaStar size={11} />{show.vote_average?.toFixed(1)}</span>
@@ -195,15 +188,15 @@ export default function TVDetailsClient({ show }: { show: any }) {
             </div>
             <div className="flex gap-3 flex-wrap">
               {trailer && (
-                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" onClick={trackWatchHistory} className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" onClick={trackWatchHistory} className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2">
                   <FaPlay size={12} /> Watch Trailer
                 </Link>
               )}
-              <button onClick={toggleFavorite} className={`px-5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 cursor-pointer ${isFavorite ? "bg-red-600 hover:bg-red-700" : "bg-gray-700 hover:bg-gray-600"} text-white`}>
+              <button onClick={toggleFavorite} className={`px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2 cursor-pointer ${isFavorite ? "bg-red-600 hover:bg-red-700" : "bg-gray-700 hover:bg-gray-600"} text-white`}>
                 {isFavorite ? <FaCheck size={12} /> : <FaPlus size={12} />}
                 {isFavorite ? "Saved" : "Watchlist"}
               </button>
-              <button onClick={handleShare} className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 cursor-pointer">
+              <button onClick={handleShare} className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2 cursor-pointer">
                 <FaShare size={12} /> Share
               </button>
             </div>
@@ -214,15 +207,18 @@ export default function TVDetailsClient({ show }: { show: any }) {
         <div className="flex gap-6 mt-8 border-b border-gray-800 mb-6">
           {["general", "trailer", "ratings"].map((tab) => (
             <button key={tab} onClick={() => { setActiveTab(tab); if (tab === "trailer" && trailer) trackWatchHistory(); }}
-              className={`pb-3 text-sm font-medium capitalize transition-all cursor-pointer ${activeTab === tab ? "text-white border-b-2 border-red-500" : "text-gray-500 hover:text-gray-300"}`}>
+              className={`relative pb-3 text-sm font-medium capitalize transition-colors duration-300 cursor-pointer ${activeTab === tab ? "text-white" : "text-gray-500 hover:text-gray-300"}`}>
               {tab === "general" ? "General" : tab === "trailer" ? "Trailer" : "Rate & Review"}
+              {activeTab === tab && (
+                <motion.span layoutId="details-tab-underline" transition={{ duration: 0.45, ease: easeSoft }} className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-red-500" />
+              )}
             </button>
           ))}
         </div>
 
         {/* GENERAL TAB */}
         {activeTab === "general" && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: easeSoft }}>
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 mb-12">
               <div className="flex-1">
                 <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-3">About</h2>
@@ -247,7 +243,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
                 <h2 className="text-lg font-semibold mb-4">Cast</h2>
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                   {cast.map((member) => (
-                    <div key={member.id} className="shrink-0 rounded-xl overflow-hidden bg-[#181818] hover:bg-[#222] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/50" style={{ width: 120 }}>
+                    <div key={member.id} className="shrink-0 rounded-xl overflow-hidden bg-[#181818] hover:bg-[#222] transition duration-300 ease-soft hover:-translate-y-1 hover:shadow-lg hover:shadow-black/50" style={{ width: 120 }}>
                       <div className="relative w-full" style={{ paddingBottom: "120%" }}>
                         {member.profile_path
                           ? <img src={`${profileBaseUrl}${member.profile_path}`} alt={member.name} className="absolute inset-0 w-full h-full object-cover object-top" />
@@ -267,7 +263,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
 
         {/* TRAILER TAB */}
         {activeTab === "trailer" && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-12">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: easeSoft }} className="mb-12">
             {trailer
               ? <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-xl shadow-lg"><iframe src={`https://www.youtube.com/embed/${trailer.key}`} className="w-full h-full" allowFullScreen /></div>
               : <p className="text-gray-500 text-sm">No trailer available for this show.</p>}
@@ -276,7 +272,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
 
         {/* RATINGS TAB */}
         {activeTab === "ratings" && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-12 max-w-xl">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: easeSoft }} className="mb-12 max-w-xl">
             {!user ? (
               <div className="text-center py-12">
                 <p className="text-gray-400 mb-4">Sign in to rate and review this show</p>
@@ -308,53 +304,14 @@ export default function TVDetailsClient({ show }: { show: any }) {
           </motion.div>
         )}
 
-        {/* ── SIMILAR SHOWS — exact same size & hover as MovieCard ── */}
+        {/* ── SIMILAR SHOWS ── */}
         {similar.length > 0 && (
           <div className="pt-8 pb-12 border-t border-gray-800">
             <h2 className="text-xl font-semibold mb-5">More Like This</h2>
-            <div className="flex gap-4 overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide pb-2">
-              {similar.map((item) => {
-                const isFav = checkIsFavorite(item.id, "tv");
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/tv/${item.id}`}
-                    className="relative group cursor-pointer shrink-0 w-50 md:w-60 transform transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-105 hover:shadow-[0_10px_40px_rgba(239,68,68,0.35)] block"
-                  >
-                    {/* Poster — same h-75 md:h-90 as MovieCard */}
-                    <img
-                      src={`${posterBaseUrl}${item.poster_path}`}
-                      alt={item.name}
-                      className="w-full h-75 md:h-90 object-cover rounded-xl transition-transform duration-300"
-                    />
-                    {/* Rating badge */}
-                    <div className="absolute top-3 right-3 bg-black/90 text-yellow-400 text-sm px-2.5 py-1 rounded-md font-semibold backdrop-blur-sm flex items-center gap-1">
-                      <FaStar size={11} className="text-yellow-400" />
-                      {item.vote_average?.toFixed(1)}
-                    </div>
-                    {/* TV badge */}
-                    <div className="absolute top-3 left-3 bg-blue-600/90 text-white text-xs px-2 py-0.5 rounded-md font-medium backdrop-blur-sm">
-                      TV
-                    </div>
-                    {/* Hover overlay — identical to MovieCard */}
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-t from-black via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                      <h3 className="text-white text-base md:text-lg font-semibold leading-tight line-clamp-2">{item.name}</h3>
-                      <p className="text-gray-300 text-sm mt-1">{item.first_air_date?.split("-")[0]}</p>
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-md font-medium text-center transition flex items-center justify-center gap-2">
-                          <FaPlay size={12} /> Play
-                        </div>
-                        <button
-                          onClick={(e) => toggleSimilarFavorite(e, item)}
-                          className={`px-3 py-2 rounded-md font-semibold transition flex items-center justify-center cursor-pointer ${isFav ? "bg-red-600 hover:bg-red-700 text-white" : "bg-gray-700/90 hover:bg-gray-600 text-white"}`}
-                        >
-                          {isFav ? <FaCheck size={14} /> : <FaPlus size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className="poster-row">
+              {similar.map((item, i) => (
+                <MovieCard key={item.id} movie={{ ...item, media_type: "tv" }} index={i} />
+              ))}
             </div>
           </div>
         )}
