@@ -40,6 +40,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
   const [review, setReview] = useState("");
   const [submittingRating, setSubmittingRating] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [ratingError, setRatingError] = useState("");
   const [user, setUser] = useState<any>(null);
   const [shareToast, setShareToast] = useState<"shared" | "copied" | null>(null);
   const [cast, setCast] = useState<CastMember[]>([]);
@@ -130,8 +131,10 @@ export default function TVDetailsClient({ show }: { show: any }) {
     if (!user) { window.location.href = "/auth/login"; return; }
     if (userRating === 0) return;
     setSubmittingRating(true);
-    await supabase.from("ratings").upsert({ user_id: user.id, media_id: show.id, media_type: "tv", title: show.name, poster_path: show.poster_path, rating: userRating, review }, { onConflict: "user_id,media_id,media_type" });
+    setRatingError("");
+    const { error } = await supabase.from("ratings").upsert({ user_id: user.id, media_id: show.id, media_type: "tv", title: show.name, poster_path: show.poster_path, rating: userRating, review }, { onConflict: "user_id,media_id,media_type" });
     setSubmittingRating(false);
+    if (error) { setRatingError(`Couldn't save your rating: ${error.message}`); return; }
     setRatingSubmitted(true);
   };
 
@@ -299,6 +302,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
                   {submittingRating ? "Saving..." : ratingSubmitted ? "Update Rating" : "Submit Rating"}
                 </button>
                 {ratingSubmitted && <p className="text-green-400 text-sm flex items-center gap-2"><FaCheck size={12} /> Rating saved successfully!</p>}
+                {ratingError && <p className="text-red-400 text-sm">{ratingError}</p>}
               </div>
             )}
           </motion.div>

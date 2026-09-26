@@ -165,7 +165,8 @@ export default function ProfilePage() {
     const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
     if (uploadError) { setSaveMessage("Upload error"); return; }
     const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(fileName);
-    const avatarUrl = urlData.publicUrl;
+    // Same file name on every upload, so add a version to stop browsers showing the old picture
+    const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}`;
     await supabase.from("profiles").upsert({ id: user.id, avatar_url: avatarUrl });
     await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } });
     setProfile((prev: any) => ({ ...prev, avatar_url: avatarUrl }));

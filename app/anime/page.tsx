@@ -259,7 +259,6 @@ export default function AnimePage() {
           <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
             <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
               Anime
-              <span className="text-gray-500 font-normal text-base ml-2">({anime.length})</span>
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">

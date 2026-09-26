@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { FaGoogle, FaEnvelope, FaLock } from "react-icons/fa";
@@ -10,6 +10,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Set by /auth/callback when a sign-in or confirmation link can't be completed
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") === "link") {
+      setError("That sign-in link is invalid or has expired. Sign in again below.");
+    }
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();

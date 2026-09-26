@@ -24,8 +24,10 @@ export async function GET(request: Request) {
         },
       }
     );
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) return NextResponse.redirect(`${origin}/`);
   }
 
-  return NextResponse.redirect(`${origin}/`);
+  // Missing, expired or already-used link
+  return NextResponse.redirect(`${origin}/auth/login?error=link`);
 }

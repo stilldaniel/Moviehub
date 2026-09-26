@@ -23,6 +23,8 @@ export default function SignupPage() {
       password,
       options: {
         data: { full_name: name },
+        // Without this, confirmation links go to the Supabase "Site URL", which may not be this site
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
