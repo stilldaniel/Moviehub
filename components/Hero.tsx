@@ -7,6 +7,7 @@ import { easeSoft } from "./MotionProvider";
 import { mediaHref } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import { containerClasses } from "@/components/ui/Container";
+import { SkeletonBlock } from "@/components/ui/Skeleton";
 
 // Text blocks rise in one after another once the backdrop has started to settle
 const content = {
@@ -18,7 +19,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: easeSoft } },
 };
 
-const baseImageUrl = "https://image.tmdb.org/t/p/original";
+const baseImageUrl = "https://image.tmdb.org/t/p/w1280"; // not "original": that can be a multi-MB 4K image
 
 export default function Hero() {
   const [movie, setMovie] = useState<any>(null);
@@ -53,12 +54,20 @@ export default function Hero() {
 
   if (!movie) {
     return (
-      <div className="h-[85vh] flex items-center justify-center text-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin" />
-          <p className="text-fg-muted text-sm">Loading...</p>
+      // Same shape as the loaded banner, so nothing jumps when it arrives
+      <section aria-busy="true" aria-label="Loading featured movie" className="relative h-[85vh] overflow-hidden bg-surface">
+        <div className="absolute inset-0 bg-linear-to-t from-canvas via-transparent to-transparent" />
+        <div className={`${containerClasses} relative flex h-full flex-col justify-center gap-4`}>
+          <SkeletonBlock className="h-6 w-40" />
+          <SkeletonBlock className="h-12 w-full max-w-lg" />
+          <SkeletonBlock className="h-4 w-full max-w-xl" />
+          <SkeletonBlock className="h-4 w-full max-w-md" />
+          <div className="mt-4 flex gap-3">
+            <SkeletonBlock className="h-12 w-36 rounded-xl" />
+            <SkeletonBlock className="h-12 w-32 rounded-xl" />
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 

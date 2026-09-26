@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import MovieCard from "@/components/MovieCard";
@@ -23,6 +24,7 @@ interface FavoriteItem {
 }
 
 export default function FavoritesPage() {
+  const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +32,7 @@ export default function FavoritesPage() {
     const init = async () => {
       const { data: { session } } = await getSafeSession(supabase.auth);
       if (!session?.user) {
-        window.location.href = "/auth/login";
+        router.replace("/auth/login");
         return;
       }
       fetchFavorites(session.user.id);

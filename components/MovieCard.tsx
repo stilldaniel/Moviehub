@@ -7,8 +7,8 @@ import { FaPlay, FaPlus, FaCheck, FaStar, FaInfoCircle } from "react-icons/fa";
 import { useFavorites } from "./FavoritesProvider";
 import { mediaHref } from "@/lib/utils";
 import { freeClassicArchiveId } from "@/lib/freeClassics";
+import { POSTER_SIZES, posterSrcSet, tmdbPoster } from "@/lib/tmdbImages";
 
-const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
 export default function MovieCard({
   movie,
@@ -65,7 +65,9 @@ export default function MovieCard({
       <div className="poster-frame">
         {movie.poster_path ? (
           <img
-            src={`${baseImageUrl}${movie.poster_path}`}
+            src={tmdbPoster(movie.poster_path)}
+            srcSet={posterSrcSet(movie.poster_path)}
+            sizes={POSTER_SIZES[variant]}
             alt={title}
             loading="lazy"
             decoding="async"

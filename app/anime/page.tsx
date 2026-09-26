@@ -78,7 +78,7 @@ export default function AnimePage() {
       const res = await fetch(`/api/tmdb/tv/52698`);
       const data = await res.json();
       if (data.backdrop_path) {
-        setHeroBg(`https://image.tmdb.org/t/p/original${data.backdrop_path}`);
+        setHeroBg(`https://image.tmdb.org/t/p/w1280${data.backdrop_path}`);
       }
     };
     fetchHero();
@@ -222,6 +222,7 @@ export default function AnimePage() {
       <div className="lg:hidden fixed bottom-6 left-6 z-50">
         <button
           onClick={() => setSidebarOpen(true)}
+          aria-label="Show filters"
           className="bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
         >
           <SlidersHorizontal size={18} />
@@ -235,7 +236,7 @@ export default function AnimePage() {
           <div className="relative w-64 bg-surface h-full overflow-y-auto p-5 z-10 scrollbar-hide">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Filters</h2>
-              <button onClick={() => setSidebarOpen(false)} className="text-fg-muted hover:text-white">
+              <button onClick={() => setSidebarOpen(false)} aria-label="Close filters" className="text-fg-muted hover:text-fg cursor-pointer">
                 <X size={20} />
               </button>
             </div>
@@ -295,6 +296,7 @@ export default function AnimePage() {
       {showTop && (
         <button
           onClick={scrollToTop}
+          aria-label="Back to top"
           className="fixed bottom-6 right-6 bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 z-40"
         >
           <ChevronUp size={20} />

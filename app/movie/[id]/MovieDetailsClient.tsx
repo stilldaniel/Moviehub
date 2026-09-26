@@ -15,8 +15,8 @@ import Container from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/Headings";
 import { archiveEmbedUrl, freeClassicArchiveId } from "@/lib/freeClassics";
 
-const imageBaseUrl = "https://image.tmdb.org/t/p/original";
-const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
+const imageBaseUrl = "https://image.tmdb.org/t/p/w1280"; // not "original": that can be a multi-MB 4K image
+const posterBaseUrl = "https://image.tmdb.org/t/p/w500"; // shown up to 240px wide, so 500px stays sharp on 2x screens
 const profileBaseUrl = "https://image.tmdb.org/t/p/w185";
 
 interface CastMember {
@@ -135,7 +135,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
   };
 
   const submitRating = async () => {
-    if (!user) { window.location.href = "/auth/login"; return; }
+    if (!user) { router.push("/auth/login"); return; }
     if (userRating === 0) return;
     setSubmittingRating(true);
     setRatingError("");

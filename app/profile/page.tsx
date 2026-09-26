@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
@@ -21,7 +22,7 @@ import { SectionHeader } from "@/components/ui/Headings";
 import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
 
-const baseImageUrl = "https://image.tmdb.org/t/p/w500";
+const baseImageUrl = "https://image.tmdb.org/t/p/w154"; // history thumbnails are 52px wide
 
 const formatRuntime = (mins?: number | null) => {
   if (!mins) return "";
@@ -75,6 +76,7 @@ function HistoryRow({ item }: { item: any }) {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await getSafeSession(supabase.auth);
-      if (!session?.user) { window.location.href = "/auth/login"; return; }
+      if (!session?.user) { router.replace("/auth/login"); return; }
       setUser(session.user);
       fetchProfile(session.user.id, session.user);
       fetchFavorites(session.user.id);
@@ -238,7 +240,7 @@ export default function ProfilePage() {
     setTimeout(() => setPasswordMessage(""), 3000);
   };
 
-  const handleLogout = async () => { await supabase.auth.signOut(); window.location.href = "/auth/login"; };
+  const handleLogout = async () => { await supabase.auth.signOut(); router.replace("/auth/login"); router.refresh(); };
   // Deletes the user's data and auth account via the delete_own_account() database function
   const handleDeleteAccount = async () => {
     if (!user || deleteInProgress) return;
@@ -254,7 +256,8 @@ export default function ProfilePage() {
     const { data: files } = await supabase.storage.from("avatars").list("", { search: user.id });
     if (files?.length) await supabase.storage.from("avatars").remove(files.map((f: { name: string }) => f.name));
     await supabase.auth.signOut();
-    window.location.href = "/auth/signup";
+    router.replace("/auth/signup");
+    router.refresh();
   };
 
   const removeFavorite = (item: any) =>

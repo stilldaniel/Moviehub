@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, getSafeSession } from "@/lib/supabase";
@@ -29,6 +30,7 @@ const keyOf = (mediaId: number, mediaType: string) => `${mediaType}-${mediaId}`;
 // Loads the signed-in user's favorite IDs once and shares them with every card,
 // instead of each card querying Supabase on its own.
 export default function FavoritesProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [favoriteKeys, setFavoriteKeys] = useState<Set<string>>(new Set());
   // Supabase also fires SIGNED_IN when it restores a saved session, so skip reloading for the same user
@@ -80,7 +82,7 @@ export default function FavoritesProvider({ children }: { children: React.ReactN
   const toggleFavorite = useCallback(
     async (item: FavoriteInput) => {
       if (!user) {
-        window.location.href = "/auth/login";
+        router.push("/auth/login");
         return null;
       }
 
@@ -122,7 +124,7 @@ export default function FavoritesProvider({ children }: { children: React.ReactN
       }
       return !wasFavorite;
     },
-    [user, favoriteKeys]
+    [user, favoriteKeys, router]
   );
 
   return (

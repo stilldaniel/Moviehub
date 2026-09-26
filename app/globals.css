@@ -46,6 +46,17 @@ body {
   overflow-y: scroll;
 }
 
+/* Keyboard focus: one visible ring for every focusable element that doesn't draw its own */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgb(227 18 27 / 0.4);
+  }
+}
+
 /* Hide scrollbar */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

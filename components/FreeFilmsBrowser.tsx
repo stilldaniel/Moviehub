@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { FaPlay } from "react-icons/fa";
 import { archivePosterUrl, type FreeFilm } from "@/lib/freeFilms";
+import { POSTER_SIZES, posterSrcSet, tmdbPoster } from "@/lib/tmdbImages";
 import { containerClasses } from "./ui/Container";
 import EmptyState from "./ui/EmptyState";
 import { SectionHeader } from "./ui/Headings";
@@ -16,7 +17,9 @@ function FreeFilmCard({ film, index }: { film: FreeFilm; index: number }) {
     <Link href={`/free/${encodeURIComponent(film.id)}`} className="poster-card poster-card--captioned w-full" style={{ "--i": index } as React.CSSProperties}>
       <div className="poster-frame">
         <img
-          src={film.posterPath ? `https://image.tmdb.org/t/p/w500${film.posterPath}` : archivePosterUrl(film.id)}
+          src={film.posterPath ? tmdbPoster(film.posterPath) : archivePosterUrl(film.id)}
+          srcSet={film.posterPath ? posterSrcSet(film.posterPath) : undefined}
+          sizes={POSTER_SIZES.grid}
           alt={film.title}
           loading="lazy"
           decoding="async"

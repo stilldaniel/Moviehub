@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import { FaTrash } from "react-icons/fa";
@@ -27,6 +28,7 @@ interface HistoryItem {
 }
 
 export default function HistoryPage() {
+  const router = useRouter();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +36,7 @@ export default function HistoryPage() {
     const init = async () => {
       const { data: { session } } = await getSafeSession(supabase.auth);
       if (!session?.user) {
-        window.location.href = "/auth/login";
+        router.replace("/auth/login");
         return;
       }
       fetchHistory(session.user.id);

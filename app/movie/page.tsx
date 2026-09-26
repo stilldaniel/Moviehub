@@ -229,7 +229,7 @@ function MoviesPageContent() {
       {/* HERO SECTION */}
       <div
         className="relative h-64 sm:h-80 md:h-96 bg-cover bg-center flex items-center justify-center"
-        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg)` }}
+        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg)` }}
       >
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/20 to-black" />
@@ -271,6 +271,7 @@ function MoviesPageContent() {
       <div className="lg:hidden fixed bottom-6 left-6 z-50">
         <button
           onClick={() => setSidebarOpen(true)}
+          aria-label="Show filters"
           className="bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
         >
           <SlidersHorizontal size={18} />
@@ -284,7 +285,7 @@ function MoviesPageContent() {
           <div className="relative w-64 bg-surface h-full overflow-y-auto p-5 z-10 scrollbar-hide">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Filters</h2>
-              <button onClick={() => setSidebarOpen(false)} className="text-fg-muted hover:text-white">
+              <button onClick={() => setSidebarOpen(false)} aria-label="Close filters" className="text-fg-muted hover:text-fg cursor-pointer">
                 <X size={20} />
               </button>
             </div>
@@ -348,6 +349,7 @@ function MoviesPageContent() {
       {showTop && (
         <button
           onClick={scrollToTop}
+          aria-label="Back to top"
           className="fixed bottom-6 right-6 bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 z-40"
         >
           <ChevronUp size={20} />

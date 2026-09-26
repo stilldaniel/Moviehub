@@ -39,11 +39,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-black text-white">
+      <body className="bg-canvas text-fg">
         <MotionProvider>
           <FavoritesProvider>
+            {/* First thing keyboard users reach: jump past the header */}
+            <a
+              href="#main"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-semibold"
+            >
+              Skip to content
+            </a>
             <Navbar />
-            <main>{children}</main>
+            <main id="main" tabIndex={-1} className="outline-none">{children}</main>
           </FavoritesProvider>
         </MotionProvider>
       </body>
