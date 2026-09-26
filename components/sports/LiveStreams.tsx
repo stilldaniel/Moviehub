@@ -59,9 +59,9 @@ export default function LiveStreams() {
       <div className="flex items-end justify-between gap-4 mb-3">
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <FaYoutube className="text-red-500" size={20} /> Live on YouTube
+            <FaYoutube className="text-brand" size={20} /> Live on YouTube
           </h2>
-          <p className="text-sm text-gray-400">Free streams from official league and federation channels</p>
+          <p className="text-sm text-fg-muted">Free streams from official league and federation channels</p>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export default function LiveStreams() {
           >
             <div className="poster-frame" style={{ aspectRatio: "16 / 9" }}>
               {s.thumbnail && <img src={s.thumbnail} alt="" loading="lazy" className="poster-img" data-loaded="true" />}
-              <div className={`poster-badge left-2 ${s.state === "live" ? "text-white bg-red-600!" : "text-gray-200"}`}>
+              <div className={`poster-badge left-2 ${s.state === "live" ? "text-white bg-brand!" : "text-fg-soft"}`}>
                 {s.state === "live" ? "● LIVE" : startsIn(s.scheduledStart)}
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
@@ -85,7 +85,7 @@ export default function LiveStreams() {
               </div>
             </div>
             <p className="mt-2 text-sm font-medium line-clamp-2">{s.title}</p>
-            <p className="text-xs text-gray-500">{s.channel} · {s.sport}</p>
+            <p className="text-xs text-fg-subtle">{s.channel} · {s.sport}</p>
           </button>
         ))}
       </div>
@@ -102,7 +102,7 @@ export default function LiveStreams() {
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="min-w-0">
                 <p className="font-semibold truncate">{playing.title}</p>
-                <p className="text-xs text-gray-400">{playing.channel} · official stream on YouTube</p>
+                <p className="text-xs text-fg-muted">{playing.channel} · official stream on YouTube</p>
               </div>
               <button onClick={() => setPlaying(null)} aria-label="Close player" className="shrink-0 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer">
                 <FaTimes size={14} />

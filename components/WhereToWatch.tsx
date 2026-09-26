@@ -73,14 +73,14 @@ export default function WhereToWatch({ mediaType, id }: { mediaType: "movie" | "
   return (
     <section id="where-to-watch" className="mt-6 scroll-mt-24 max-w-2xl">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h2 className="text-gray-400 text-xs uppercase tracking-wider">Where to Watch</h2>
+        <h2 className="text-fg-muted text-xs uppercase tracking-wider">Where to Watch</h2>
         {regions.length > 0 && (
-          <label className="flex items-center gap-2 text-xs text-gray-500">
+          <label className="flex items-center gap-2 text-xs text-fg-subtle">
             <span className="sr-only">Country</span>
             <select
               value={region}
               onChange={(e) => chooseRegion(e.target.value)}
-              className="bg-[#141414] border border-gray-800 rounded-md px-2 py-1 text-gray-300 outline-none focus:border-gray-600 cursor-pointer"
+              className="bg-surface border border-line rounded-md px-2 py-1 text-fg-soft outline-none focus:border-line-strong cursor-pointer"
             >
               {!regions.includes(region) && <option value={region}>{regionName(region)}</option>}
               {regions.map((code) => (
@@ -94,11 +94,11 @@ export default function WhereToWatch({ mediaType, id }: { mediaType: "movie" | "
       {results === null ? (
         <div className="flex gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="w-11 h-11 rounded-lg bg-[#161616] animate-pulse" />
+            <div key={i} className="w-11 h-11 rounded-lg bg-surface-raised animate-pulse" />
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-fg-subtle">
           {regions.length === 0
             ? "No streaming, rental or purchase options are listed for this title yet."
             : `Not listed for ${regionName(region)}. Pick another country to see where it's available.`}
@@ -107,7 +107,7 @@ export default function WhereToWatch({ mediaType, id }: { mediaType: "movie" | "
         <div className="space-y-3">
           {groups.map(([label, list]) => (
             <div key={label} className="flex items-start gap-3">
-              <span className="w-12 shrink-0 pt-3 text-xs text-gray-500">{label}</span>
+              <span className="w-12 shrink-0 pt-3 text-xs text-fg-subtle">{label}</span>
               <div className="flex flex-wrap gap-2">
                 {list.slice(0, MAX_PER_GROUP).map((p) => (
                   <a
@@ -126,7 +126,7 @@ export default function WhereToWatch({ mediaType, id }: { mediaType: "movie" | "
                     href={offers!.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-11 h-11 rounded-lg bg-[#161616] ring-1 ring-white/10 text-xs font-semibold text-gray-400 transition duration-300 ease-soft hover:text-white hover:ring-white/40"
+                    className="flex items-center justify-center w-11 h-11 rounded-lg bg-surface-raised ring-1 ring-white/10 text-xs font-semibold text-fg-muted transition duration-300 ease-soft hover:text-white hover:ring-white/40"
                     title={`See all ${list.length} ${label.toLowerCase()} options`}
                   >
                     +{list.length - MAX_PER_GROUP}
@@ -139,9 +139,9 @@ export default function WhereToWatch({ mediaType, id }: { mediaType: "movie" | "
       )}
 
       {/* JustWatch attribution is required when using TMDB's watch provider data */}
-      <p className="mt-3 text-[11px] text-gray-600">
+      <p className="mt-3 text-[11px] text-fg-subtle">
         Availability from{" "}
-        <a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">
+        <a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-fg-muted">
           JustWatch
         </a>
       </p>

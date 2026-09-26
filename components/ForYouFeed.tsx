@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
+import { SectionHeader } from "./ui/Headings";
+import { PosterRowSkeleton } from "./ui/Skeleton";
 import { supabase, getSafeSession } from "@/lib/supabase";
 const BASE_URL = "/api/tmdb";
 const STORAGE_KEY = "moviehub_search_history";
@@ -308,42 +310,25 @@ export default function ForYouFeed() {
     // Show skeleton only if we might have data (null = still checking)
     if (hasData === false) return null;
     return (
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">For You</h2>
-          <p className="text-sm text-gray-400">Building your personal feed…</p>
-        </div>
-        <div className="flex gap-4 overflow-hidden pt-3 pb-6 -mt-3 -mb-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="shrink-0 w-40 sm:w-48 md:w-56 aspect-2/3 animate-pulse rounded-xl bg-[#161616]"
-            />
-          ))}
-        </div>
-      </div>
+      <section>
+        <SectionHeader title="For You" description="Building your personal feed…" className="mb-0" />
+        <PosterRowSkeleton />
+      </section>
     );
   }
 
   // ── No seeds → hide completely ────────────────────────────────────
   if (hasData === false || recommendations.length === 0) return null;
 
-  
-
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">For You</h2>
-        </div>
-        
-      </div>
+    <section>
+      <SectionHeader title="For You" description="Picked from what you've saved and watched" className="mb-0" />
 
       <div className="poster-row">
         {recommendations.map((item, i) => (
           <MovieCard key={`${item.media_type}-${item.id}`} movie={item} index={i} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

@@ -5,6 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { FaPlay } from "react-icons/fa";
 import { archivePosterUrl, type FreeFilm } from "@/lib/freeFilms";
+import { containerClasses } from "./ui/Container";
+import EmptyState from "./ui/EmptyState";
+import { SectionHeader } from "./ui/Headings";
+import { Film, WifiOff } from "lucide-react";
 
 function FreeFilmCard({ film, index }: { film: FreeFilm; index: number }) {
   const [loaded, setLoaded] = useState(false);
@@ -21,7 +25,7 @@ function FreeFilmCard({ film, index }: { film: FreeFilm; index: number }) {
           ref={(img) => { if (img?.complete && img.naturalWidth > 0 && !loaded) setLoaded(true); }}
           className="poster-img"
         />
-        <div className="poster-badge left-2 text-emerald-300">Free</div>
+        <div className="poster-badge left-2 text-success">Free</div>
         <div className="poster-shade" />
         <div className="poster-info">
           <h3 className="poster-title">{film.title}</h3>
@@ -101,31 +105,30 @@ export default function FreeFilmsBrowser() {
   );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
+    <div className={`${containerClasses} py-8`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-5">
-        <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-200">Free to Watch</h2>
-          <p className="text-sm text-gray-500">Public-domain films from the Internet Archive, free to watch in full</p>
-        </div>
-        <label className="flex items-center gap-2 bg-[#141414] border border-gray-800 rounded-lg px-3 focus-within:border-gray-600 transition sm:w-72">
-          <Search size={15} className="text-gray-500 shrink-0" />
+        <SectionHeader
+          title="Free to Watch"
+          description="Public-domain films from the Internet Archive, free to watch in full"
+          className="mb-0"
+        />
+        <label className="flex items-center gap-2 bg-surface-raised ring-1 ring-inset ring-line rounded-xl px-3 focus-within:ring-2 focus-within:ring-brand/70 transition sm:w-72">
+          <Search size={15} className="text-fg-subtle shrink-0" />
           <span className="sr-only">Search free films</span>
           <input
             type="search"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Search free films…"
-            className="w-full bg-transparent py-2 text-sm text-white placeholder-gray-500 outline-none"
+            className="w-full bg-transparent py-2 text-sm text-white placeholder-fg-subtle outline-none"
           />
         </label>
       </div>
 
       {error && films.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-400">{error}</p>
+        <EmptyState icon={<WifiOff size={24} />} title="Couldn't load free films" description={error} />
       ) : !loading && films.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-400">
-          No free films match &ldquo;{search}&rdquo;. Try a different title.
-        </p>
+        <EmptyState icon={<Film size={24} />} title={`No free films match “${search}”`} description="Try a different or shorter title." />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {films.map((film, i) => (
@@ -135,7 +138,7 @@ export default function FreeFilmsBrowser() {
           ))}
           {loading &&
             Array.from({ length: 12 }).map((_, i) => (
-              <div key={`skeleton-${i}`} className="aspect-2/3 rounded-xl bg-[#161616] animate-pulse" />
+              <div key={`skeleton-${i}`} className="aspect-2/3 rounded-xl bg-surface-raised animate-pulse" />
             ))}
         </div>
       )}

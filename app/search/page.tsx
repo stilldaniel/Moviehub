@@ -3,6 +3,11 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import MovieCard from "@/components/MovieCard";
+import Container from "@/components/ui/Container";
+import EmptyState from "@/components/ui/EmptyState";
+import { PageHeader, SectionHeader } from "@/components/ui/Headings";
+import Spinner from "@/components/ui/Spinner";
+import { SearchX } from "lucide-react";
 const BASE_URL = "/api/tmdb";
 const SEARCH_HISTORY_KEY = "moviehub_search_history";
 
@@ -145,14 +150,10 @@ function SearchResults() {
       : results.filter((item) => item.media_type === "tv");
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 px-4 sm:px-6 lg:px-10">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">
-          Search results for <span className="text-red-500">"{query}"</span>
-        </h1>
-      </div>
+    <Container className="min-h-screen pt-28 pb-16">
+      <PageHeader title={<>Results for <span className="text-brand">&ldquo;{query}&rdquo;</span></>} className="mb-6" />
 
-      <div className="flex flex-wrap gap-3 border-b border-gray-800 pb-4 mb-6">
+      <div role="tablist" aria-label="Filter results" className="flex flex-wrap gap-2 border-b border-line pb-4 mb-6">
         {[
           { key: "all", label: "All" },
           { key: "movies", label: "Movies" },
@@ -160,11 +161,13 @@ function SearchResults() {
         ].map((tab) => (
           <button
             key={tab.key}
+            role="tab"
+            aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition cursor-pointer ${
               activeTab === tab.key
-                ? "bg-red-500 text-black"
-                : "bg-white/5 text-gray-300 hover:bg-white/10"
+                ? "bg-brand text-white"
+                : "bg-surface-raised text-fg-soft hover:bg-control"
             }`}
           >
             {tab.label}
@@ -175,17 +178,17 @@ function SearchResults() {
       {loading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="aspect-2/3 animate-pulse rounded-xl bg-gray-800" />
+            <div key={index} className="aspect-2/3 animate-pulse rounded-xl bg-surface-raised" />
           ))}
         </div>
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 text-gray-500">
-          <p className="text-5xl mb-4">🔍</p>
-          <p className="text-lg font-medium">No results found for "{query}"</p>
-          <p className="text-sm mt-1">Try a different search term or spelling.</p>
-        </div>
+        <EmptyState
+          icon={<SearchX size={24} />}
+          title={`No results for “${query}”`}
+          description="Check the spelling or try a shorter title."
+        />
       )}
 
       {!loading && filtered.length > 0 && (
@@ -198,15 +201,12 @@ function SearchResults() {
 
           {recommendations.length > 0 && (
             <section className="mt-10">
-              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold">Recommended for you</h2>
-                  <p className="text-sm text-gray-400">Based on "{recommendationSource}"</p>
-                </div>
-                {loadingRecommendations && (
-                  <span className="text-sm text-gray-400">Refreshing recommendations...</span>
-                )}
-              </div>
+              <SectionHeader
+                title="Recommended for you"
+                description={<>Based on &ldquo;{recommendationSource}&rdquo;</>}
+                action={loadingRecommendations && <span className="text-fg-muted">Refreshing…</span>}
+                className="mb-4"
+              />
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {recommendations.map((item, i) => (
@@ -217,18 +217,14 @@ function SearchResults() {
           )}
         </>
       )}
-    </div>
+    </Container>
   );
 }
 
 export default function SearchPage() {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          <p className="text-gray-400">Loading...</p>
-        </div>
-      }
+      fallback={<Spinner className="min-h-screen" />}
     >
       <SearchResults />
     </Suspense>

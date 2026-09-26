@@ -25,7 +25,7 @@ export default function ZoraLogo({
         style={{ fontSize: size * 0.62 }}
       >
         <span className="text-white">ZORA</span>
-        <span className="text-[#e3121b] ml-[0.28em]">STREAM</span>
+        <span className="text-brand ml-[0.28em]">STREAM</span>
       </span>
     </span>
   );

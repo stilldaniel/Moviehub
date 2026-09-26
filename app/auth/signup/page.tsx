@@ -3,8 +3,12 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import ZoraLogo from "@/components/brand/ZoraLogo";
-import { FaGoogle, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import AuthLayout from "@/components/auth/AuthLayout";
+import Button from "@/components/ui/Button";
+import EmptyState from "@/components/ui/EmptyState";
+import Input from "@/components/ui/Input";
+import { MailCheck } from "lucide-react";
+import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -48,111 +52,41 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="text-5xl mb-4">📧</div>
-          <h2 className="text-2xl font-bold mb-2">Check your email!</h2>
-          <p className="text-gray-400">We sent a confirmation link to <span className="text-white">{email}</span></p>
-          <Link href="/auth/login" className="mt-6 inline-block text-red-500 hover:text-red-400">
-            Back to login
-          </Link>
-        </div>
+      <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
+        <EmptyState
+          icon={<MailCheck size={24} />}
+          title="Check your email"
+          description={`We sent a confirmation link to ${email}. Open it to finish creating your account.`}
+          action={<Button href="/auth/login" variant="secondary">Back to sign in</Button>}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex" aria-label="Zora Stream home">
-            <span className="sm:hidden"><ZoraLogo size={46} speedLines /></span>
-            <span className="hidden sm:inline"><ZoraLogo size={60} speedLines /></span>
-          </Link>
-          <p className="text-gray-400 mt-2 text-sm">Create your account</p>
-        </div>
-
-        {/* Card */}
-        <div className="bg-[#141414] rounded-2xl p-8 border border-gray-800">
-
-          {/* Google Button */}
-          <button
-            onClick={handleGoogleSignup}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-black py-3 rounded-lg font-medium transition cursor-pointer mb-6"
-          >
-            <FaGoogle size={18} />
-            Continue with Google
-          </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px bg-gray-700" />
-            <span className="text-gray-500 text-sm">or</span>
-            <div className="flex-1 h-px bg-gray-700" />
-          </div>
-
-          {/* Signup Form */}
-          <form onSubmit={handleEmailSignup} className="space-y-4">
-            <div className="relative">
-              <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-              <input
-                type="text"
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-black/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:border-red-500 transition placeholder-gray-500"
-                required
-              />
-            </div>
-
-            <div className="relative">
-              <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:border-red-500 transition placeholder-gray-500"
-                required
-              />
-            </div>
-
-            <div className="relative">
-              <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-              <input
-                type="password"
-                placeholder="Password (min 6 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:border-red-500 transition placeholder-gray-500"
-                required
-                minLength={6}
-              />
-            </div>
-
-            {error && (
-              <p className="text-red-500 text-sm">{error}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-medium transition cursor-pointer disabled:opacity-50"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
-
-          <p className="text-center text-gray-400 text-sm mt-6">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="text-red-500 hover:text-red-400 font-medium">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+    <AuthLayout
+      subtitle="Create your account"
+      onGoogle={handleGoogleSignup}
+      googleLabel="Sign up with Google"
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/auth/login" className="font-medium text-brand hover:text-danger">Sign in</Link>
+        </>
+      }
+    >
+      <form onSubmit={handleEmailSignup} className="space-y-4">
+        <Input type="text" name="name" autoComplete="name" placeholder="Full name" aria-label="Full name"
+          icon={<FaUser size={14} />} value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input type="email" name="email" autoComplete="email" placeholder="Email address" aria-label="Email address"
+          icon={<FaEnvelope size={14} />} value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input type="password" name="password" autoComplete="new-password" placeholder="Password (min 6 characters)" aria-label="Password"
+          icon={<FaLock size={14} />} value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? "Creating account…" : "Create account"}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

@@ -3,13 +3,16 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LiveStreams from "@/components/sports/LiveStreams";
+import Container from "@/components/ui/Container";
+import { PageHeader } from "@/components/ui/Headings";
+import Spinner from "@/components/ui/Spinner";
 import Scoreboard, { type DayKey } from "@/components/sports/Scoreboard";
 import { sportConfig, type SportKey } from "@/lib/sports";
 
 // useSearchParams needs a Suspense boundary so the page can still be prerendered
 export default function SportsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+    <Suspense fallback={<Spinner className="min-h-screen" />}>
       <SportsPageContent />
     </Suspense>
   );
@@ -33,17 +36,14 @@ function SportsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-16 px-4 sm:px-6 lg:px-10">
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold">Sports</h1>
-        <p className="text-gray-400 text-sm mt-1">Scores and fixtures across every league. Scores update about every 20 minutes.</p>
-      </div>
+    <Container className="min-h-screen pt-28 pb-16">
+      <PageHeader title="Sports" description="Scores and fixtures across every league. Scores update about every 20 minutes." />
 
       <LiveStreams />
 
       <Scoreboard sport={sport} day={day} onChange={change} />
 
-      <p className="mt-10 text-[11px] text-gray-600">Scores and fixtures from API-Sports. Times are shown in your local time zone.</p>
-    </div>
+      <p className="mt-10 text-[11px] text-fg-subtle">Scores and fixtures from API-Sports. Times are shown in your local time zone.</p>
+    </Container>
   );
 }

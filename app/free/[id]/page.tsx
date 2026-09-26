@@ -6,6 +6,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { archiveEmbedUrl, tmdbIdForArchive } from "@/lib/freeClassics";
 import { BLOCKED_IDS, isPublicDomainLicense } from "@/lib/freeFilms";
 import { mediaHref } from "@/lib/utils";
+import Container from "@/components/ui/Container";
 
 type ArchiveFilm = { id: string; title: string; year?: string; runtime?: string; description?: string };
 
@@ -51,24 +52,24 @@ export default async function FreeFilmPage({ params }: { params: Promise<{ id: s
   if (!film) notFound();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-24 pb-16 px-4 sm:px-6 lg:px-10">
-      <Link href="/movie?tab=free" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition mb-5">
+    <Container className="min-h-screen pt-28 pb-16">
+      <Link href="/movie?tab=free" className="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg transition mb-5">
         <FaArrowLeft size={11} /> Free to Watch
       </Link>
 
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{film.title}</h1>
+      <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">{film.title}</h1>
       <div className="flex flex-wrap items-center gap-2 mb-6 text-sm">
-        {film.year && <span className="bg-gray-700 px-2.5 py-0.5 rounded-md">{film.year}</span>}
-        {film.runtime && <span className="bg-gray-700 px-2.5 py-0.5 rounded-md">{film.runtime}</span>}
-        <span className="bg-emerald-900/60 text-emerald-300 px-2.5 py-0.5 rounded-md">Public domain</span>
+        {film.year && <span className="bg-control px-2.5 py-0.5 rounded-md">{film.year}</span>}
+        {film.runtime && <span className="bg-control px-2.5 py-0.5 rounded-md">{film.runtime}</span>}
+        <span className="bg-success/15 text-success px-2.5 py-0.5 rounded-md">Public domain</span>
       </div>
 
       <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-xl bg-black shadow-lg">
         <iframe src={archiveEmbedUrl(film.id)} title={`Watch ${film.title}`} className="w-full h-full" allow="fullscreen" allowFullScreen />
       </div>
-      <p className="mt-3 text-xs text-gray-500">
+      <p className="mt-3 text-xs text-fg-subtle">
         Streaming from the{" "}
-        <a href={`https://archive.org/details/${encodeURIComponent(film.id)}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-300">
+        <a href={`https://archive.org/details/${encodeURIComponent(film.id)}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-fg-soft">
           Internet Archive
         </a>
         .
@@ -76,10 +77,10 @@ export default async function FreeFilmPage({ params }: { params: Promise<{ id: s
 
       {film.description && (
         <div className="max-w-3xl mt-8">
-          <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-3">About</h2>
-          <p className="text-gray-300 leading-relaxed text-sm sm:text-base whitespace-pre-line line-clamp-12">{film.description}</p>
+          <h2 className="text-fg-muted text-xs uppercase tracking-wider mb-3">About</h2>
+          <p className="text-fg-soft leading-relaxed text-sm sm:text-base whitespace-pre-line line-clamp-12">{film.description}</p>
         </div>
       )}
-    </div>
+    </Container>
   );
 }

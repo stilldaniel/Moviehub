@@ -88,7 +88,7 @@ export default function MovieCard({
           </div>
         )}
         {mediaType === "tv" && <div className="poster-badge left-2 text-white/90">TV</div>}
-        {isFree && <div className="poster-badge left-2 text-emerald-300">Free</div>}
+        {isFree && <div className="poster-badge left-2 text-success">Free</div>}
 
         <div className="poster-shade" />
 

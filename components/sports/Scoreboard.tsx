@@ -31,18 +31,18 @@ const timeFormat = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "
 function StatusCell({ game }: { game: Game }) {
   if (game.state === "live") {
     return (
-      <span className="flex items-center gap-1.5 text-red-400 font-semibold">
+      <span className="flex items-center gap-1.5 text-danger font-semibold">
         <span className="relative flex w-1.5 h-1.5">
-          <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping motion-reduce:animate-none" />
-          <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-red-500" />
+          <span className="absolute inline-flex w-full h-full rounded-full bg-brand opacity-75 animate-ping motion-reduce:animate-none" />
+          <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-brand" />
         </span>
         {game.status}
       </span>
     );
   }
-  if (game.state === "scheduled") return <span className="text-gray-300">{timeFormat(game.start)}</span>;
-  if (game.state === "cancelled") return <span className="text-gray-500">{game.status}</span>;
-  return <span className="text-gray-500">{game.status === "Finished" ? "FT" : game.status}</span>;
+  if (game.state === "scheduled") return <span className="text-fg-soft">{timeFormat(game.start)}</span>;
+  if (game.state === "cancelled") return <span className="text-fg-subtle">{game.status}</span>;
+  return <span className="text-fg-subtle">{game.status === "Finished" ? "FT" : game.status}</span>;
 }
 
 function TeamLine({ side, showScore, dim }: { side: NonNullable<Game["home"]>; showScore: boolean; dim: boolean }) {
@@ -53,9 +53,9 @@ function TeamLine({ side, showScore, dim }: { side: NonNullable<Game["home"]>; s
       ) : (
         <span className="w-5 h-5 shrink-0 rounded-full bg-white/10" />
       )}
-      <span className={`truncate text-sm ${dim ? "text-gray-400" : "text-white"} ${side.winner ? "font-semibold" : ""}`}>{side.name}</span>
+      <span className={`truncate text-sm ${dim ? "text-fg-muted" : "text-white"} ${side.winner ? "font-semibold" : ""}`}>{side.name}</span>
       {showScore && side.score != null && (
-        <span className={`ml-auto pl-3 tabular-nums text-sm ${dim ? "text-gray-400" : "text-white font-semibold"}`}>{side.score}</span>
+        <span className={`ml-auto pl-3 tabular-nums text-sm ${dim ? "text-fg-muted" : "text-white font-semibold"}`}>{side.score}</span>
       )}
     </div>
   );
@@ -76,12 +76,12 @@ function GameRow({ game }: { game: Game }) {
           <>
             <TeamLine side={game.home} showScore={started} dim={loserDim(game.home, game.away)} />
             <TeamLine side={game.away} showScore={started} dim={loserDim(game.away, game.home)} />
-            {game.subtitle && <p className="text-xs text-gray-500">{game.subtitle}</p>}
+            {game.subtitle && <p className="text-xs text-fg-subtle">{game.subtitle}</p>}
           </>
         ) : (
           <>
             <p className="text-sm text-white font-medium truncate">{game.title}</p>
-            {game.subtitle && <p className="text-xs text-gray-500 truncate">{game.subtitle}</p>}
+            {game.subtitle && <p className="text-xs text-fg-subtle truncate">{game.subtitle}</p>}
           </>
         )}
       </div>
@@ -103,9 +103,9 @@ function StandingsTable({ sport, league }: { sport: SportKey; league: Game["leag
       .catch((err: Error) => setError(err.message || "Couldn't load this table."));
   }, [sport, league.id, league.season]);
 
-  if (error) return <p className="px-4 py-4 text-sm text-gray-400 border-t border-white/5">{error}</p>;
+  if (error) return <p className="px-4 py-4 text-sm text-fg-muted border-t border-white/5">{error}</p>;
   if (!groups) return <div className="h-24 border-t border-white/5 animate-pulse bg-white/[0.02]" />;
-  if (groups.length === 0) return <p className="px-4 py-4 text-sm text-gray-400 border-t border-white/5">No table is available for this competition.</p>;
+  if (groups.length === 0) return <p className="px-4 py-4 text-sm text-fg-muted border-t border-white/5">No table is available for this competition.</p>;
 
   const hasDraws = groups.some((g) => g.rows.some((r) => r.drawn != null && r.drawn > 0));
   const hasPoints = groups.some((g) => g.rows.some((r) => r.points != null));
@@ -115,10 +115,10 @@ function StandingsTable({ sport, league }: { sport: SportKey; league: Game["leag
       {groups.map((group, gi) => (
         <table key={gi} className="w-full text-sm">
           {group.name && groups.length > 1 && (
-            <caption className="text-left px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-gray-500">{group.name}</caption>
+            <caption className="text-left px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-fg-subtle">{group.name}</caption>
           )}
           <thead>
-            <tr className="text-xs text-gray-500">
+            <tr className="text-xs text-fg-subtle">
               <th className="text-left font-normal px-4 py-2 w-8">#</th>
               <th className="text-left font-normal py-2">Team</th>
               <th className="font-normal px-2 py-2 w-9">P</th>
@@ -131,17 +131,17 @@ function StandingsTable({ sport, league }: { sport: SportKey; league: Game["leag
           <tbody>
             {group.rows.map((row) => (
               <tr key={`${row.rank}-${row.team}`} className="border-t border-white/5 text-center tabular-nums">
-                <td className="text-left px-4 py-2 text-gray-500">{row.rank}</td>
+                <td className="text-left px-4 py-2 text-fg-subtle">{row.rank}</td>
                 <td className="text-left py-2">
                   <span className="flex items-center gap-2 min-w-0">
                     {row.logo && <img src={row.logo} alt="" loading="lazy" className="w-4 h-4 object-contain shrink-0" />}
                     <span className="truncate">{row.team}</span>
                   </span>
                 </td>
-                <td className="px-2 py-2 text-gray-400">{row.played ?? "–"}</td>
-                <td className="px-2 py-2 text-gray-400">{row.won ?? "–"}</td>
-                {hasDraws && <td className="px-2 py-2 text-gray-400">{row.drawn ?? "–"}</td>}
-                <td className="px-2 py-2 text-gray-400">{row.lost ?? "–"}</td>
+                <td className="px-2 py-2 text-fg-muted">{row.played ?? "–"}</td>
+                <td className="px-2 py-2 text-fg-muted">{row.won ?? "–"}</td>
+                {hasDraws && <td className="px-2 py-2 text-fg-muted">{row.drawn ?? "–"}</td>}
+                <td className="px-2 py-2 text-fg-muted">{row.lost ?? "–"}</td>
                 {hasPoints && <td className="px-4 py-2 font-semibold">{row.points ?? "–"}</td>}
               </tr>
             ))}
@@ -157,7 +157,7 @@ function LeagueCard({ sport, group }: { sport: SportKey; group: LeagueGroup }) {
   const canShowTable = TABLES_ENABLED && SPORTS.find((s) => s.key === sport)?.standings && group.league.season != null;
 
   return (
-    <section className="rounded-xl bg-[#111] ring-1 ring-white/5 overflow-hidden">
+    <section className="rounded-xl bg-surface ring-1 ring-white/5 overflow-hidden">
       <header className="flex items-center gap-3 px-4 py-3 bg-white/[0.03]">
         {group.league.logo ? (
           <img src={group.league.logo} alt="" loading="lazy" className="w-6 h-6 object-contain shrink-0" />
@@ -166,14 +166,14 @@ function LeagueCard({ sport, group }: { sport: SportKey; group: LeagueGroup }) {
         )}
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold truncate">{group.league.name}</h3>
-          {group.league.country && <p className="text-xs text-gray-500 truncate">{group.league.country}</p>}
+          {group.league.country && <p className="text-xs text-fg-subtle truncate">{group.league.country}</p>}
         </div>
-        {group.live > 0 && <span className="text-xs text-red-400 font-medium">{group.live} live</span>}
+        {group.live > 0 && <span className="text-xs text-danger font-medium">{group.live} live</span>}
         {canShowTable && (
           <button
             onClick={() => setShowTable((v) => !v)}
             aria-expanded={showTable}
-            className="text-xs px-2.5 py-1 rounded-md bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition cursor-pointer"
+            className="text-xs px-2.5 py-1 rounded-md bg-white/5 text-fg-soft hover:bg-white/10 hover:text-white transition cursor-pointer"
           >
             {showTable ? "Hide table" : "Table"}
           </button>
@@ -267,7 +267,7 @@ export default function Scoreboard({
             onClick={() => onChange({ sport: s.key })}
             aria-pressed={sport === s.key}
             className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition duration-300 ease-soft cursor-pointer ${
-              sport === s.key ? "bg-red-600 text-white" : "bg-[#141414] text-gray-400 ring-1 ring-white/5 hover:text-white"
+              sport === s.key ? "bg-brand text-white" : "bg-surface text-fg-muted ring-1 ring-white/5 hover:text-white"
             }`}
           >
             {s.label}
@@ -278,13 +278,13 @@ export default function Scoreboard({
       {/* Day, live filter, search */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-5 mb-5">
         <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-full bg-[#141414] p-1 ring-1 ring-white/5">
+          <div className="inline-flex rounded-full bg-surface p-1 ring-1 ring-white/5">
             {DAYS.map((d) => (
               <button
                 key={d.key}
                 onClick={() => onChange({ day: d.key })}
                 aria-pressed={day === d.key}
-                className={`px-3.5 py-1.5 rounded-full text-sm transition cursor-pointer ${day === d.key ? "bg-white text-black font-semibold" : "text-gray-400 hover:text-white"}`}
+                className={`px-3.5 py-1.5 rounded-full text-sm transition cursor-pointer ${day === d.key ? "bg-white text-black font-semibold" : "text-fg-muted hover:text-white"}`}
               >
                 {d.label}
               </button>
@@ -294,35 +294,35 @@ export default function Scoreboard({
             onClick={() => setLiveOnly((v) => !v)}
             aria-pressed={liveOnly}
             className={`px-3.5 py-2 rounded-full text-sm transition cursor-pointer ring-1 ${
-              liveOnly ? "bg-red-600/15 text-red-300 ring-red-500/40" : "bg-[#141414] text-gray-400 ring-white/5 hover:text-white"
+              liveOnly ? "bg-brand/15 text-danger ring-brand/40" : "bg-surface text-fg-muted ring-white/5 hover:text-white"
             }`}
           >
             Live{liveCount > 0 ? ` (${liveCount})` : ""}
           </button>
         </div>
-        <label className="flex items-center gap-2 bg-[#141414] ring-1 ring-white/5 rounded-full px-3.5 focus-within:ring-white/20 transition sm:w-72">
-          <Search size={15} className="text-gray-500 shrink-0" />
+        <label className="flex items-center gap-2 bg-surface ring-1 ring-white/5 rounded-full px-3.5 focus-within:ring-white/20 transition sm:w-72">
+          <Search size={15} className="text-fg-subtle shrink-0" />
           <span className="sr-only">Search leagues or teams</span>
           <input
             type="search"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setVisible(LEAGUES_PER_PAGE); }}
             placeholder="Search leagues or teams…"
-            className="w-full bg-transparent py-2 text-sm text-white placeholder-gray-500 outline-none"
+            className="w-full bg-transparent py-2 text-sm text-white placeholder-fg-subtle outline-none"
           />
         </label>
       </div>
 
       {error && !games ? (
-        <p className="py-16 text-center text-sm text-gray-400">{error}</p>
+        <p className="py-16 text-center text-sm text-fg-muted">{error}</p>
       ) : !games ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-40 rounded-xl bg-[#111] animate-pulse" />
+            <div key={i} className="h-40 rounded-xl bg-surface animate-pulse" />
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-400">
+        <p className="py-16 text-center text-sm text-fg-muted">
           {query ? `Nothing matches “${query}”.` : liveOnly ? "Nothing is live right now." : "No games scheduled for this day."}
         </p>
       ) : (
@@ -336,7 +336,7 @@ export default function Scoreboard({
             <div className="text-center mt-6">
               <button
                 onClick={() => setVisible((v) => v + LEAGUES_PER_PAGE)}
-                className="px-5 py-2 rounded-full bg-[#141414] ring-1 ring-white/10 text-sm text-gray-300 hover:text-white transition cursor-pointer"
+                className="px-5 py-2 rounded-full bg-surface ring-1 ring-white/10 text-sm text-fg-soft hover:text-white transition cursor-pointer"
               >
                 Show more leagues ({groups.length - visible} more)
               </button>

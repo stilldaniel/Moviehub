@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronUp, SlidersHorizontal, X } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
+import { containerClasses } from "@/components/ui/Container";
 
 function useDebounce(value: any, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -16,30 +17,30 @@ function useDebounce(value: any, delay: number) {
 function MovieCardSkeleton() {
   return (
     <div className="w-full rounded-xl overflow-hidden animate-pulse">
-      <div className="aspect-2/3 bg-gray-800 rounded-xl" />
+      <div className="aspect-2/3 bg-surface-raised rounded-xl" />
     </div>
   );
 }
 
 function PageSkeleton() {
   return (
-    <div className="flex gap-0 py-8">
+    <div className={`${containerClasses} flex gap-8 py-8`}>
       {/* Sidebar skeleton */}
-      <div className="hidden lg:block w-52 bg-[#141414] p-5 shrink-0 border-r border-gray-800">
-        <div className="h-5 w-24 bg-gray-700 rounded animate-pulse mb-6" />
+      <div className="hidden lg:block w-56 self-start rounded-2xl bg-surface ring-1 ring-line p-5 shrink-0">
+        <div className="h-5 w-24 bg-control rounded animate-pulse mb-6" />
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="mb-6">
-            <div className="h-3 w-16 bg-gray-700 rounded animate-pulse mb-3" />
+            <div className="h-3 w-16 bg-control rounded animate-pulse mb-3" />
             {Array.from({ length: 4 }).map((_, j) => (
-              <div key={j} className="h-3 w-20 bg-gray-800 rounded animate-pulse mb-2" />
+              <div key={j} className="h-3 w-20 bg-surface-raised rounded animate-pulse mb-2" />
             ))}
           </div>
         ))}
       </div>
 
       {/* Grid skeleton */}
-      <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
-        <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-4" />
+      <div className="flex-1 min-w-0">
+        <div className="h-6 w-32 bg-surface-raised rounded animate-pulse mb-4" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {Array.from({ length: 18 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
@@ -150,12 +151,12 @@ export default function AnimePage() {
   const FilterContent = () => (
     <>
       <div className="mb-6">
-        <h3 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Type</h3>
+        <h3 className="text-fg-muted text-sm uppercase tracking-wider mb-3">Type</h3>
         {["All", "Movie", "TV"].map((type) => (
           <p
             key={type}
             onClick={() => { setSelectedType(type); setSidebarOpen(false); }}
-            className={`cursor-pointer mb-1.5 text-sm ${selectedType === type ? "text-red-500 font-medium" : "text-gray-300 hover:text-white"}`}
+            className={`cursor-pointer mb-1.5 text-sm ${selectedType === type ? "text-brand font-medium" : "text-fg-soft hover:text-white"}`}
           >
             {type === "All" ? "All" : type === "Movie" ? "Anime Movies" : "Anime Series"}
           </p>
@@ -163,12 +164,12 @@ export default function AnimePage() {
       </div>
 
       <div className="mb-6">
-        <h3 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Year</h3>
+        <h3 className="text-fg-muted text-sm uppercase tracking-wider mb-3">Year</h3>
         {["All", "2024", "2023", "2022", "2021", "2020"].map((year) => (
           <p
             key={year}
             onClick={() => { setSelectedYear(year); setSidebarOpen(false); }}
-            className={`cursor-pointer mb-1.5 text-sm ${selectedYear === year ? "text-red-500 font-medium" : "text-gray-300 hover:text-white"}`}
+            className={`cursor-pointer mb-1.5 text-sm ${selectedYear === year ? "text-brand font-medium" : "text-fg-soft hover:text-white"}`}
           >
             {year}
           </p>
@@ -176,12 +177,12 @@ export default function AnimePage() {
       </div>
 
       <div className="mb-6">
-        <h3 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Rating</h3>
+        <h3 className="text-fg-muted text-sm uppercase tracking-wider mb-3">Rating</h3>
         {["All", "9", "8", "7"].map((rating) => (
           <p
             key={rating}
             onClick={() => { setSelectedRating(rating); setSidebarOpen(false); }}
-            className={`cursor-pointer mb-1.5 text-sm ${selectedRating === rating ? "text-red-500 font-medium" : "text-gray-300 hover:text-white"}`}
+            className={`cursor-pointer mb-1.5 text-sm ${selectedRating === rating ? "text-brand font-medium" : "text-fg-soft hover:text-white"}`}
           >
             {rating === "All" ? "All" : `${rating}+`}
           </p>
@@ -190,7 +191,7 @@ export default function AnimePage() {
 
       <button
         onClick={() => { clearFilters(); setSidebarOpen(false); }}
-        className="mt-2 w-full bg-red-600 hover:bg-red-700 py-2 rounded-md text-sm font-medium transition cursor-pointer"
+        className="mt-2 w-full bg-brand hover:bg-brand-hover py-2 rounded-md text-sm font-medium transition cursor-pointer"
       >
         Clear Filters
       </button>
@@ -202,7 +203,7 @@ export default function AnimePage() {
 
       {/* HERO SECTION */}
       <div
-        className="relative h-64 sm:h-80 md:h-96 bg-cover bg-center flex items-center justify-center bg-gray-900"
+        className="relative h-64 sm:h-80 md:h-96 bg-cover bg-center flex items-center justify-center bg-surface"
         style={{ backgroundImage: heroBg ? `url(${heroBg})` : "none" }}
       >
         <div className="absolute inset-0 bg-black/60" />
@@ -211,7 +212,7 @@ export default function AnimePage() {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold mb-3 tracking-tight">
             Explore Anime
           </h1>
-          <p className="text-gray-300 text-sm sm:text-base md:text-lg max-w-xl mx-auto">
+          <p className="text-fg-soft text-sm sm:text-base md:text-lg max-w-xl mx-auto">
             Dive into the world of anime. From action-packed series to emotional masterpieces.
           </p>
         </div>
@@ -221,7 +222,7 @@ export default function AnimePage() {
       <div className="lg:hidden fixed bottom-6 left-6 z-50">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="bg-red-600 hover:bg-red-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+          className="bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
         >
           <SlidersHorizontal size={18} />
         </button>
@@ -231,10 +232,10 @@ export default function AnimePage() {
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/80" onClick={() => setSidebarOpen(false)} />
-          <div className="relative w-64 bg-[#141414] h-full overflow-y-auto p-5 z-10 scrollbar-hide">
+          <div className="relative w-64 bg-surface h-full overflow-y-auto p-5 z-10 scrollbar-hide">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Filters</h2>
-              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setSidebarOpen(false)} className="text-fg-muted hover:text-white">
                 <X size={20} />
               </button>
             </div>
@@ -247,17 +248,17 @@ export default function AnimePage() {
       {initialLoading ? (
         <PageSkeleton />
       ) : (
-        <div className="flex gap-0 py-8">
+        <div className={`${containerClasses} flex gap-8 py-8`}>
 
           {/* DESKTOP SIDEBAR */}
-          <div className="hidden lg:block w-52 bg-[#141414] p-5 sticky top-24 shrink-0 border-r border-gray-800 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
+          <div className="hidden lg:block w-56 self-start rounded-2xl bg-surface ring-1 ring-line p-5 sticky top-24 shrink-0 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-hide">
             <h2 className="text-base font-semibold mb-5">Filters</h2>
             <FilterContent />
           </div>
 
           {/* ANIME GRID */}
-          <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-200">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-fg-soft">
               Anime
             </h2>
 
@@ -294,7 +295,7 @@ export default function AnimePage() {
       {showTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 z-40"
+          className="fixed bottom-6 right-6 bg-brand hover:bg-brand-hover w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 z-40"
         >
           <ChevronUp size={20} />
         </button>

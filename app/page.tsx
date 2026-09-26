@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Row from "@/components/Row";
 import AnimatedSection from "@/components/AnimatedSection";
 import ForYouFeed from "@/components/ForYouFeed";
+import Container from "@/components/ui/Container";
 import FreeClassicsRow from "@/components/FreeClassicsRow";
 import { getSafeUser } from "@/lib/supabase";
 
@@ -34,12 +35,12 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="bg-canvas min-h-screen">
       <AnimatedSection>
         <Hero />
       </AnimatedSection>
 
-      <div className="px-3 space-y-12 pb-16">
+      <Container className="space-y-12 pb-16">
         <AnimatedSection>
           <ForYouFeed />
         </AnimatedSection>
@@ -110,7 +111,7 @@ export default async function HomePage() {
             mediaType="movie"
           />
         </AnimatedSection>
-      </div>
+      </Container>
     </div>
   );
 }

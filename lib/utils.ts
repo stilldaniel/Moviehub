@@ -17,3 +17,8 @@ export function mediaHref(mediaType: string, id: number, title?: string): string
   const slug = title ? toSlug(title) : "";
   return `/${type}/${slug ? `${id}-${slug}` : id}`;
 }
+
+// Joins class names, skipping false/undefined, e.g. cn("base", active && "text-fg")
+export function cn(...classes: Array<string | false | null | undefined>): string {
+  return classes.filter(Boolean).join(" ");
+}

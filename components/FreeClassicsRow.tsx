@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MovieCard from "./MovieCard";
+import { SectionHeader } from "./ui/Headings";
+import { PosterRowSkeleton } from "./ui/Skeleton";
 import { FREE_CLASSICS } from "@/lib/freeClassics";
 
 // Home page row of public-domain films that play in full inside the app
@@ -28,22 +30,15 @@ export default function FreeClassicsRow() {
   if (movies !== null && movies.length === 0) return null;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold">Free to Watch</h2>
-          <p className="text-sm text-gray-400">Public-domain classics you can watch in full, right here</p>
-        </div>
-        <Link href="/movie?tab=free" className="shrink-0 text-sm text-gray-400 hover:text-white transition">
-          See all →
-        </Link>
-      </div>
+    <section>
+      <SectionHeader
+        title="Free to Watch"
+        description="Public-domain classics you can watch in full, right here"
+        className="mb-0"
+        action={<Link href="/movie?tab=free" className="text-fg-muted hover:text-fg transition">See all →</Link>}
+      />
       {movies === null ? (
-        <div className="flex gap-4 overflow-hidden pt-3 pb-6 -mt-3 -mb-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="shrink-0 w-40 sm:w-48 md:w-56 aspect-2/3 rounded-xl bg-[#161616] animate-pulse" />
-          ))}
-        </div>
+        <PosterRowSkeleton />
       ) : (
         <div className="poster-row">
           {movies.map((movie, i) => (
@@ -51,6 +46,6 @@ export default function FreeClassicsRow() {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

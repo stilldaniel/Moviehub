@@ -1,14 +1,47 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. Every colour in the app comes from here, named by its job rather than its
+ * shade, so `bg-surface` or `text-fg-muted` means the same thing on every page.
+ * Text levels are chosen to stay readable (WCAG AA) on both canvas and surface.
+ */
 @theme {
+  /* Backgrounds, from the page up */
+  --color-canvas: #000000;          /* page background */
+  --color-surface: #111113;         /* cards, panels, sheets */
+  --color-surface-raised: #1b1b1f;  /* inputs, chips, skeletons, things sitting on a card */
+  --color-control: #2a2a30;         /* secondary buttons */
+  --color-control-hover: #36363d;
+
+  /* Borders */
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.16);
+
+  /* Text: primary → secondary → tertiary */
+  --color-fg: #ffffff;
+  --color-fg-soft: #d4d4d8;         /* body copy, descriptions */
+  --color-fg-muted: #a1a1aa;        /* secondary labels, metadata */
+  --color-fg-subtle: #8b8b94;       /* captions, hints (still ≥4.5:1 on black) */
+
+  /* Brand: the logo red */
+  --color-brand: #e3121b;
+  --color-brand-hover: #c20f17;
+  --color-brand-deep: #6d0a10;      /* dark end of brand gradients */
+
+  /* Status */
+  --color-danger: #f87171;
+  --color-success: #4ade80;
+  --color-warning: #fb923c;
+  --color-rating: #facc15;
+
   /* One easing curve for every transition: fast start, long soft landing */
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* dark theme base */
 body {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--color-canvas);
+  color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
   overflow-y: scroll;
 }
@@ -63,7 +96,7 @@ body {
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: 12px;
-  background: #161616;
+  background: var(--color-surface-raised);
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
   transition:
     transform 450ms var(--ease-soft),
@@ -182,11 +215,11 @@ body {
 .poster-play {
   flex: 1;
   gap: 0.45em;
-  background: #dc2626;
+  background: var(--color-brand);
 }
 
 .poster-card:hover .poster-play {
-  background: #e23636;
+  background: var(--color-brand-hover);
 }
 
 .poster-fav {
