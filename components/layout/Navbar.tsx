@@ -65,6 +65,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/movie", label: "Movies" },
     { href: "/anime", label: "Anime" },
+    { href: "/sports", label: "Sports" },
     // Favorites lives in the account menu
   ];
 

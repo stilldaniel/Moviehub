@@ -27,12 +27,20 @@ Open http://localhost:3000.
 | `TMDB_API_KEY` | Server only | Your TMDB v3 API key. Never prefix it with `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_SUPABASE_URL` | Browser + server | Your Supabase project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser + server | The **publishable** key (`sb_publishable_…`). Never use a secret or `service_role` key here: anything prefixed `NEXT_PUBLIC_` is shipped to every visitor. |
+| `SPORTS_API_KEY` | Server only | [API-Sports](https://dashboard.api-football.com) key. One key covers every sport; the free plan allows 100 requests per sport per day. |
+| `YOUTUBE_API_KEY` | Server only | YouTube Data API v3 key (restrict it to that API). Used to find live streams on official sports channels. |
 
-On Vercel, set the same three variables for Production and Preview.
+On Vercel, set the same variables for Production and Preview.
 
 ## How TMDB requests work
 
 The TMDB key stays on the server. Server components call TMDB directly through `fetchFromTMDB` in `lib/tmdb.ts`. Browser code calls `/api/tmdb/...` (`app/api/tmdb/[...path]/route.ts`), which adds the key, only allows read-only endpoints, and caches responses for an hour.
+
+## Sports
+
+`/sports` shows scores and fixtures for 11 sports from API-Sports (`lib/sports.ts`). Every request goes through `/api/sports/*` and is cached (today's games for 20 minutes, other days for 6 hours) so the free plan's daily limit isn't exceeded. League tables are behind `TABLES_ENABLED` because the free plan only serves standings for the 2022–2024 seasons.
+
+The "Live on YouTube" row only checks the official channels listed in `lib/officialChannels.ts`, so unauthorised restreams can't appear. Verify a channel is the genuine official account before adding it.
 
 ## Supabase setup
 
