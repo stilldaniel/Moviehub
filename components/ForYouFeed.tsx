@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
 import { supabase, getSafeSession } from "@/lib/supabase";
-
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
+const BASE_URL = "/api/tmdb";
 const STORAGE_KEY = "moviehub_search_history";
 
 // ─────────────────────────────────────────────
@@ -75,7 +73,7 @@ function scoreCandidate(
 // ─────────────────────────────────────────────
 async function fetchDetails(id: number, mediaType: "movie" | "tv"): Promise<number[]> {
   try {
-    const res = await fetch(`${BASE_URL}/${mediaType}/${id}?api_key=${API_KEY}`);
+    const res = await fetch(`${BASE_URL}/${mediaType}/${id}`);
     const data = await res.json();
     return (data.genres || []).map((g: { id: number }) => g.id);
   } catch {
@@ -87,7 +85,7 @@ async function fetchRecommendations(seed: SeedItem): Promise<MediaItem[]> {
   try {
     const endpoint = seed.media_type === "movie" ? "movie" : "tv";
     const res = await fetch(
-      `${BASE_URL}/${endpoint}/${seed.id}/recommendations?api_key=${API_KEY}&page=1`
+      `${BASE_URL}/${endpoint}/${seed.id}/recommendations?page=1`
     );
     const data = await res.json();
     return (data.results || []).map((r: any) => ({
@@ -109,7 +107,7 @@ async function fetchSimilar(seed: SeedItem): Promise<MediaItem[]> {
   try {
     const endpoint = seed.media_type === "movie" ? "movie" : "tv";
     const res = await fetch(
-      `${BASE_URL}/${endpoint}/${seed.id}/similar?api_key=${API_KEY}&page=1`
+      `${BASE_URL}/${endpoint}/${seed.id}/similar?page=1`
     );
     const data = await res.json();
     return (data.results || []).map((r: any) => ({
@@ -134,7 +132,7 @@ async function fetchByGenre(
   try {
     const endpoint = mediaType === "movie" ? "movie" : "tv";
     const res = await fetch(
-      `${BASE_URL}/discover/${endpoint}?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=1`
+      `${BASE_URL}/discover/${endpoint}?with_genres=${genreId}&sort_by=popularity.desc&page=1`
     );
     const data = await res.json();
     return (data.results || []).slice(0, 10).map((r: any) => ({
@@ -157,7 +155,6 @@ async function fetchByGenre(
 // ─────────────────────────────────────────────
 export default function ForYouFeed() {
   const [recommendations, setRecommendations] = useState<MediaItem[]>([]);
-  const [seedTitles, setSeedTitles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   // null = still checking, false = no data, true = has data
   const [hasData, setHasData] = useState<boolean | null>(null);
@@ -221,7 +218,6 @@ export default function ForYouFeed() {
         }
 
         setHasData(true);
-        setSeedTitles(allSeeds.slice(0, 2).map((s) => s.title));
 
         // ── 3. Enrich seeds with genre data ──────────────────────────
         const enriched = await Promise.all(

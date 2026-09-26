@@ -65,7 +65,6 @@ export default function AnimePage() {
   const [showTop, setShowTop] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
   const debouncedYear = useDebounce(selectedYear, 400);
   const debouncedRating = useDebounce(selectedRating, 400);
@@ -75,7 +74,7 @@ export default function AnimePage() {
 
   useEffect(() => {
     const fetchHero = async () => {
-      const res = await fetch(`https://api.themoviedb.org/3/tv/52698?api_key=${API_KEY}`);
+      const res = await fetch(`/api/tmdb/tv/52698`);
       const data = await res.json();
       if (data.backdrop_path) {
         setHeroBg(`https://image.tmdb.org/t/p/original${data.backdrop_path}`);
@@ -90,7 +89,7 @@ export default function AnimePage() {
       else setLoading(true);
 
       const mediaType = selectedType === "TV" ? "tv" : "movie";
-      let url = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}&with_genres=16&with_keywords=210024&sort_by=popularity.desc&page=${page}`;
+      let url = `/api/tmdb/discover/${mediaType}?with_genres=16&with_keywords=210024&sort_by=popularity.desc&page=${page}`;
 
       if (debouncedYear !== "All") {
         url += mediaType === "movie"

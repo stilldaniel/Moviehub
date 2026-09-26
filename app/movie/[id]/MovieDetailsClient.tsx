@@ -14,7 +14,6 @@ import { easeSoft } from "@/components/MotionProvider";
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
 const profileBaseUrl = "https://image.tmdb.org/t/p/w185";
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
 interface CastMember {
   id: number;
@@ -70,7 +69,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
 
   const fetchCast = async () => {
     try {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${API_KEY}`);
+      const res = await fetch(`/api/tmdb/movie/${movie.id}/credits`);
       const data = await res.json();
       setCast((data.cast || []).slice(0, 15));
     } catch { /* silently fail */ }
@@ -78,7 +77,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
 
   const fetchSimilar = async () => {
     try {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/similar?api_key=${API_KEY}&page=1`);
+      const res = await fetch(`/api/tmdb/movie/${movie.id}/similar?page=1`);
       const data = await res.json();
       setSimilar((data.results || []).filter((m: any) => m.poster_path).slice(0, 12));
     } catch { /* silently fail */ }

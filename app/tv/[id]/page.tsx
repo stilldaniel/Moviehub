@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import { fetchFromTMDB, TMDBError } from "@/lib/tmdb";
 import TVDetailsClient from "./TVDetailsClient";
 
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 
 // Extracts the numeric TMDB ID from a slug like "1396-breaking-bad" → "1396"
@@ -9,6 +11,18 @@ const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 function extractId(slug: string): string {
   return slug.split("-")[0];
 }
+
+// One cached request serves both generateMetadata and the page.
+// Returns null when TMDB has no such title, so the page can show a 404.
+const getShow = cache(async (id: string) => {
+  if (!/^\d+$/.test(id)) return null;
+  try {
+    return await fetchFromTMDB(`/tv/${id}`, { append_to_response: "videos" });
+  } catch (error) {
+    if (error instanceof TMDBError && error.status === 404) return null;
+    throw error;
+  }
+});
 
 export async function generateMetadata({
   params,
@@ -19,13 +33,9 @@ export async function generateMetadata({
   const id = extractId(slug);
 
   try {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}`,
-      { cache: "no-store" }
-    );
-    const show = await res.json();
+    const show = await getShow(id);
 
-    if (!show || show.success === false) {
+    if (!show) {
       return { title: "Show Not Found" };
     }
 
@@ -73,20 +83,8 @@ export default async function TVDetails({
   const { id: slug } = await params;
   const id = extractId(slug);
 
-  const res = await fetch(
-    `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}&append_to_response=videos`,
-    { cache: "no-store" }
-  );
-
-  const show = await res.json();
-
-  if (!show || show.success === false) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Failed to load TV show page
-      </div>
-    );
-  }
+  const show = await getShow(id);
+  if (!show) notFound();
 
   return <TVDetailsClient show={show} />;
 }

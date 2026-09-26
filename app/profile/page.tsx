@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
+import { mediaHref } from "@/lib/utils";
 import {
   FaEdit, FaHistory, FaTrash, FaCamera,
   FaLock, FaSignOutAlt, FaCheck, FaTimes,
@@ -44,6 +45,8 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -179,7 +182,23 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => { await supabase.auth.signOut(); window.location.href = "/auth/login"; };
-  const handleDeleteAccount = async () => { await supabase.auth.signOut(); window.location.href = "/auth/login"; };
+  // Deletes the user's data and auth account via the delete_own_account() database function
+  const handleDeleteAccount = async () => {
+    if (!user || deleteInProgress) return;
+    setDeleteInProgress(true);
+    setDeleteError("");
+    const { error } = await supabase.rpc("delete_own_account");
+    if (error) {
+      setDeleteError(`Couldn't delete your account: ${error.message}`);
+      setDeleteInProgress(false);
+      return;
+    }
+    // Best effort: remove the uploaded avatar too
+    const { data: files } = await supabase.storage.from("avatars").list("", { search: user.id });
+    if (files?.length) await supabase.storage.from("avatars").remove(files.map((f: { name: string }) => f.name));
+    await supabase.auth.signOut();
+    window.location.href = "/auth/signup";
+  };
 
   const removeFavorite = (item: any) =>
     setFavorites((prev) => prev.filter((f) => !(f.media_id === item.media_id && f.media_type === item.media_type)));
@@ -252,7 +271,7 @@ export default function ProfilePage() {
     const progress: number | null = typeof item.progress === "number" && item.progress < 100 ? item.progress : null;
     const runtime = formatRuntime(item.runtime);
     return (
-      <Link href={`/${item.media_type}/${item.media_id}`}>
+      <Link href={mediaHref(item.media_type, item.media_id, item.title)}>
         <div style={{ paddingTop: 14, paddingBottom: 14, borderBottom: index < total - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", cursor: "pointer" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
             <div style={{ width: 52, height: 68, borderRadius: 7, overflow: "hidden", flexShrink: 0 }}>
@@ -654,9 +673,10 @@ export default function ProfilePage() {
                         </p>
                       </div>
                     </div>
-                    <button className="plan-banner-upgrade" style={{ background:"#dc2626",color:"#fff",padding:"9px 22px",borderRadius:10,fontSize:13,fontWeight:600,border:"none",cursor:"pointer",whiteSpace:"nowrap" }}>
-                      Upgrade
-                    </button>
+                    {/* Paid plans aren't available yet, so this is a label rather than a button */}
+                    <span className="plan-banner-upgrade" style={{ background:"rgba(255,255,255,0.08)",color:"rgba(255,255,255,0.6)",padding:"9px 16px",borderRadius:10,fontSize:12,fontWeight:600,whiteSpace:"nowrap" }}>
+                      Paid plans coming soon
+                    </span>
                   </div>
                   <div className="plan-grid">
                     {plans.map((plan) => (
@@ -678,11 +698,9 @@ export default function ProfilePage() {
                           ))}
                         </ul>
                         {!plan.current&&(
-                          <button style={{ width:"100%",padding:"5px 0",borderRadius:7,fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.55)",cursor:"pointer",background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.09)" }}
-                            onMouseEnter={e=>(e.currentTarget.style.color="#fff")}
-                            onMouseLeave={e=>(e.currentTarget.style.color="rgba(255,255,255,0.55)")}>
-                            Switch
-                          </button>
+                          <p style={{ width:"100%",padding:"5px 0",margin:0,borderRadius:7,fontSize:11,fontWeight:500,textAlign:"center",color:"rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.04)",border:"1px dashed rgba(255,255,255,0.09)" }}>
+                            Coming soon
+                          </p>
                         )}
                       </div>
                     ))}
@@ -814,9 +832,10 @@ export default function ProfilePage() {
                     <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
                       <p style={{ color:"#f87171",fontSize:13,margin:0 }}>Are you sure? This cannot be undone.</p>
                       <div style={{ display:"flex",gap:8 }}>
-                        <button onClick={handleDeleteAccount} style={{ background:"#dc2626",color:"#fff",padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:600,border:"none",cursor:"pointer" }}>Yes, Delete</button>
-                        <button onClick={()=>setDeletingAccount(false)} style={{ background:"rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.6)",padding:"8px 16px",borderRadius:10,fontSize:13,border:"none",cursor:"pointer" }}>Cancel</button>
+                        <button onClick={handleDeleteAccount} disabled={deleteInProgress} style={{ background:"#dc2626",color:"#fff",padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:600,border:"none",cursor:deleteInProgress?"default":"pointer",opacity:deleteInProgress?0.6:1 }}>{deleteInProgress?"Deleting…":"Yes, Delete"}</button>
+                        <button onClick={()=>{ setDeletingAccount(false); setDeleteError(""); }} disabled={deleteInProgress} style={{ background:"rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.6)",padding:"8px 16px",borderRadius:10,fontSize:13,border:"none",cursor:"pointer" }}>Cancel</button>
                       </div>
+                      {deleteError && <p style={{ color:"#f87171",fontSize:12,margin:0 }}>{deleteError}</p>}
                     </div>
                   ):(
                     <button onClick={()=>setDeletingAccount(true)} style={{ display:"flex",alignItems:"center",gap:7,background:"rgba(220,38,38,0.09)",border:"1px solid rgba(220,38,38,0.22)",color:"#f87171",padding:"10px 16px",borderRadius:10,fontSize:13,cursor:"pointer" }}>

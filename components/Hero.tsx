@@ -17,7 +17,6 @@ const item = {
 };
 
 const baseImageUrl = "https://image.tmdb.org/t/p/original";
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
 export default function Hero() {
   const [movie, setMovie] = useState<any>(null);
@@ -26,7 +25,7 @@ export default function Hero() {
     async function fetchMovie() {
       try {
         const res = await fetch(
-          `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`
+          `/api/tmdb/movie/popular`
         );
 
         const data = await res.json();
@@ -35,7 +34,7 @@ export default function Hero() {
           const selectedMovie = data.results[0];
 
           const detailsRes = await fetch(
-            `https://api.themoviedb.org/3/movie/${selectedMovie.id}?api_key=${API_KEY}`
+            `/api/tmdb/movie/${selectedMovie.id}`
           );
 
           const detailsData = await detailsRes.json();

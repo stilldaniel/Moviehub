@@ -67,7 +67,6 @@ export default function MoviesPage() {
   const [showTop, setShowTop] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
   const debouncedGenre = useDebounce(selectedGenre, 400);
   const debouncedYear = useDebounce(selectedYear, 400);
@@ -77,7 +76,7 @@ export default function MoviesPage() {
 
   useEffect(() => {
     const fetchGenres = async () => {
-      const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}`);
+      const res = await fetch(`/api/tmdb/genre/movie/list`);
       const data = await res.json();
       setGenres(data.genres);
     };
@@ -89,7 +88,7 @@ export default function MoviesPage() {
       if (page === 1) setInitialLoading(true);
       else setLoading(true);
 
-      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}`;
+      let url = `/api/tmdb/discover/movie?sort_by=popularity.desc&page=${page}`;
       if (debouncedGenre !== "All") url += `&with_genres=${debouncedGenre}`;
       if (debouncedYear !== "All") url += `&primary_release_year=${debouncedYear}`;
       if (debouncedRating !== "All") url += `&vote_average.gte=${debouncedRating}`;

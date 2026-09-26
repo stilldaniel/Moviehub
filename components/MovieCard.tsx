@@ -5,21 +5,9 @@ import { useState } from "react";
 import { genreMap } from "@/lib/genres";
 import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
 import { useFavorites } from "./FavoritesProvider";
+import { mediaHref } from "@/lib/utils";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
-
-// Converts a title to a URL-safe slug
-// e.g. "The Dark Knight" → "the-dark-knight"
-// e.g. "Spider-Man: No Way Home" → "spider-man-no-way-home"
-function toSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")   // remove special chars except hyphens
-    .replace(/\s+/g, "-")            // spaces → hyphens
-    .replace(/-+/g, "-")             // collapse multiple hyphens
-    .replace(/^-|-$/g, "");          // trim leading/trailing hyphens
-}
 
 export default function MovieCard({
   movie,
@@ -48,10 +36,8 @@ export default function MovieCard({
   const year = (movie.release_date || movie.first_air_date)?.slice(0, 4);
   const meta = [year, genres || (mediaType === "tv" ? "TV Show" : "Movie")].filter(Boolean).join(" · ");
 
-  // Build slug URL: /movie/155-the-dark-knight or /tv/1396-breaking-bad
   const title = movie.title || movie.name || "";
-  const slug = title ? `${movie.id}-${toSlug(title)}` : `${movie.id}`;
-  const href = `/${mediaType}/${slug}`;
+  const href = mediaHref(mediaType, movie.id, title);
 
   const toggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();

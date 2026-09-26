@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import { fetchFromTMDB, TMDBError } from "@/lib/tmdb";
 import MovieDetailsClient from "./MovieDetailsClient";
 
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 
 // Extracts the numeric TMDB ID from a slug like "155-the-dark-knight" → "155"
@@ -9,6 +11,18 @@ const baseImageUrl = "https://image.tmdb.org/t/p/w1280";
 function extractId(slug: string): string {
   return slug.split("-")[0];
 }
+
+// One cached request serves both generateMetadata and the page.
+// Returns null when TMDB has no such title, so the page can show a 404.
+const getMovie = cache(async (id: string) => {
+  if (!/^\d+$/.test(id)) return null;
+  try {
+    return await fetchFromTMDB(`/movie/${id}`, { append_to_response: "videos" });
+  } catch (error) {
+    if (error instanceof TMDBError && error.status === 404) return null;
+    throw error;
+  }
+});
 
 export async function generateMetadata({
   params,
@@ -19,13 +33,9 @@ export async function generateMetadata({
   const id = extractId(slug);
 
   try {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`,
-      { cache: "no-store" }
-    );
-    const movie = await res.json();
+    const movie = await getMovie(id);
 
-    if (!movie || movie.success === false) {
+    if (!movie) {
       return { title: "Movie Not Found" };
     }
 
@@ -69,20 +79,8 @@ export default async function MovieDetails({
   const { id: slug } = await params;
   const id = extractId(slug);
 
-  const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&append_to_response=videos`,
-    { cache: "no-store" }
-  );
-
-  const movie = await res.json();
-
-  if (!movie || movie.success === false) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Failed to load movie page
-      </div>
-    );
-  }
+  const movie = await getMovie(id);
+  if (!movie) notFound();
 
   return <MovieDetailsClient movie={movie} />;
 }

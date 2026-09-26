@@ -7,8 +7,6 @@ import AnimatedSection from "@/components/AnimatedSection";
 import ForYouFeed from "@/components/ForYouFeed";
 import { getSafeUser } from "@/lib/supabase";
 
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-
 export default async function HomePage() {
   const cookieStore = await cookies();
 
@@ -48,14 +46,14 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Trending Now"
-            fetchUrl={`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/trending/all/week`}
           />
         </AnimatedSection>
 
         <AnimatedSection>
           <Row
             title="Popular Movies"
-            fetchUrl={`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/movie/popular`}
             mediaType="movie"
           />
         </AnimatedSection>
@@ -63,7 +61,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Top Rated Movies"
-            fetchUrl={`https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/movie/top_rated`}
             mediaType="movie"
           />
         </AnimatedSection>
@@ -71,7 +69,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Popular TV Series"
-            fetchUrl={`https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/tv/popular`}
             mediaType="tv"
           />
         </AnimatedSection>
@@ -79,7 +77,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Top Rated TV Series"
-            fetchUrl={`https://api.themoviedb.org/3/tv/top_rated?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/tv/top_rated`}
             mediaType="tv"
           />
         </AnimatedSection>
@@ -87,7 +85,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Trending Anime"
-            fetchUrl={`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=16&with_keywords=210024&sort_by=popularity.desc`}
+            fetchUrl={`/api/tmdb/discover/tv?with_genres=16&with_keywords=210024&sort_by=popularity.desc`}
             mediaType="tv"
           />
         </AnimatedSection>
@@ -95,7 +93,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Top Rated Anime"
-            fetchUrl={`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=16&with_keywords=210024&sort_by=vote_average.desc&vote_count.gte=100`}
+            fetchUrl={`/api/tmdb/discover/tv?with_genres=16&with_keywords=210024&sort_by=vote_average.desc&vote_count.gte=100`}
             mediaType="tv"
           />
         </AnimatedSection>
@@ -103,7 +101,7 @@ export default async function HomePage() {
         <AnimatedSection>
           <Row
             title="Upcoming Movies"
-            fetchUrl={`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}`}
+            fetchUrl={`/api/tmdb/movie/upcoming`}
             mediaType="movie"
           />
         </AnimatedSection>

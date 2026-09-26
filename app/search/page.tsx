@@ -3,9 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import MovieCard from "@/components/MovieCard";
-
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
+const BASE_URL = "/api/tmdb";
 const SEARCH_HISTORY_KEY = "moviehub_search_history";
 
 type MediaItem = {
@@ -62,7 +60,7 @@ function SearchResults() {
     const fetchRecommendations = async (item: MediaItem): Promise<MediaItem[]> => {
       const endpoint = item.media_type === "movie" ? "movie" : "tv";
       const response = await fetch(
-        `${BASE_URL}/${endpoint}/${item.id}/recommendations?api_key=${API_KEY}&page=1`
+        `${BASE_URL}/${endpoint}/${item.id}/recommendations?page=1`
       );
       const data = await response.json();
 
@@ -81,10 +79,10 @@ function SearchResults() {
       try {
         const [moviesRes, tvRes] = await Promise.all([
           fetch(
-            `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`
+            `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=1`
           ),
           fetch(
-            `${BASE_URL}/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`
+            `${BASE_URL}/search/tv?query=${encodeURIComponent(query)}&page=1`
           ),
         ]);
 

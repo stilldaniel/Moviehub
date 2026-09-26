@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase, getSafeSession } from "@/lib/supabase";
 import Link from "next/link";
+import { mediaHref } from "@/lib/utils";
 import { FaStar, FaTrash } from "react-icons/fa";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
@@ -102,7 +103,7 @@ export default function HistoryPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
           {history.map((item) => (
             <div key={item.id} className="relative group">
-              <Link href={`/${item.media_type}/${item.media_id}`}>
+              <Link href={mediaHref(item.media_type, item.media_id, item.title)}>
                 <div className="relative">
                   <img
                     src={`${baseImageUrl}${item.poster_path}`}
