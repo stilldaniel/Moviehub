@@ -30,3 +30,10 @@ export function freeClassicArchiveId(tmdbId: number): string | undefined {
 export function archiveEmbedUrl(archiveId: string): string {
   return `https://archive.org/embed/${encodeURIComponent(archiveId)}`;
 }
+
+const byArchiveId = new Map(FREE_CLASSICS.map((c) => [c.archiveId, c.tmdbId]));
+
+// TMDB id for a hand-picked classic, so its full details page can be used instead
+export function tmdbIdForArchive(archiveId: string): number | undefined {
+  return byArchiveId.get(archiveId);
+}

@@ -210,6 +210,14 @@ body {
   color: #000;
 }
 
+/* Captioned cards (free films, whose artwork often isn't a poster) always show the title */
+.poster-card--captioned .poster-shade,
+.poster-card--captioned .poster-info > .poster-title,
+.poster-card--captioned .poster-info > .poster-meta {
+  opacity: 1;
+  transform: none;
+}
+
 /* Hover (and keyboard focus) state — only on devices that can actually hover */
 @media (hover: hover) {
   .poster-card:hover .poster-frame,

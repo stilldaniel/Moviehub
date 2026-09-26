@@ -65,7 +65,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/movie", label: "Movies" },
     { href: "/anime", label: "Anime" },
-    { href: "/favorites", label: "Favorites" },
+    // Favorites lives in the account menu
   ];
 
   const userInitial =

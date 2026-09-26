@@ -25,8 +25,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
     status: res.status,
     headers: {
       "content-type": "application/json",
-      // Let Vercel's CDN serve repeat requests for an hour
-      "cache-control": res.ok ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      // Browsers keep it briefly; Vercel's CDN keeps it longer and refreshes in the background
+      "cache-control": res.ok ? "public, max-age=300" : "no-store",
+      ...(res.ok ? { "vercel-cdn-cache-control": "max-age=3600, stale-while-revalidate=86400" } : {}),
     },
   });
 }

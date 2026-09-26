@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import MovieCard from "./MovieCard";
 import { FREE_CLASSICS } from "@/lib/freeClassics";
 
@@ -28,9 +29,14 @@ export default function FreeClassicsRow() {
 
   return (
     <div className="space-y-2">
-      <div>
-        <h2 className="text-xl font-semibold">Free to Watch</h2>
-        <p className="text-sm text-gray-400">Public-domain classics you can watch in full, right here</p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold">Free to Watch</h2>
+          <p className="text-sm text-gray-400">Public-domain classics you can watch in full, right here</p>
+        </div>
+        <Link href="/movie?tab=free" className="shrink-0 text-sm text-gray-400 hover:text-white transition">
+          See all →
+        </Link>
       </div>
       {movies === null ? (
         <div className="flex gap-4 overflow-hidden pt-3 pb-6 -mt-3 -mb-4">

@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { ChevronUp, SlidersHorizontal, X } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
+import FreeFilmsBrowser from "@/components/FreeFilmsBrowser";
+import { easeSoft } from "@/components/MotionProvider";
 
 function useDebounce(value: any, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -52,7 +56,28 @@ function PageSkeleton() {
   );
 }
 
+// useSearchParams needs a Suspense boundary so the page can still be prerendered
 export default function MoviesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <MoviesPageContent />
+    </Suspense>
+  );
+}
+
+const TABS = [
+  { key: "all", label: "All Movies" },
+  { key: "free", label: "Free to Watch" },
+] as const;
+
+function MoviesPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Kept in the URL (/movie?tab=free) so the free tab can be linked to directly
+  const tab = searchParams.get("tab") === "free" ? "free" : "all";
+  const switchTab = (key: "all" | "free") =>
+    router.replace(key === "free" ? "/movie?tab=free" : "/movie", { scroll: false });
+
   const [movies, setMovies] = useState<any[]>([]);
   const [genres, setGenres] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -217,6 +242,30 @@ export default function MoviesPage() {
         </div>
       </div>
 
+      {/* ALL / FREE SWITCH */}
+      <div className="px-4 sm:px-6 lg:px-8 pt-6">
+        <div role="tablist" aria-label="Movie collections" className="inline-flex rounded-full bg-[#141414] p-1 ring-1 ring-white/5">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={tab === t.key}
+              onClick={() => switchTab(t.key)}
+              className={`relative px-4 sm:px-5 py-2 rounded-full text-sm font-medium transition-colors duration-300 cursor-pointer ${tab === t.key ? "text-white" : "text-gray-400 hover:text-gray-200"}`}
+            >
+              {tab === t.key && (
+                <motion.span layoutId="movies-tab-pill" transition={{ duration: 0.45, ease: easeSoft }} className="absolute inset-0 rounded-full bg-red-600" />
+              )}
+              <span className="relative">{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {tab === "free" ? (
+        <FreeFilmsBrowser />
+      ) : (
+      <>
       {/* MOBILE FILTER BUTTON */}
       <div className="lg:hidden fixed bottom-6 left-6 z-50">
         <button
@@ -289,6 +338,9 @@ export default function MoviesPage() {
             )}
           </div>
         </div>
+      )}
+
+      </>
       )}
 
       {/* BACK TO TOP */}
