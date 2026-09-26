@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Search",
   description:
-    "Search for movies, TV shows, and anime on MovieApp. Find ratings, trailers, and recommendations.",
+    "Search for movies, TV shows, and anime on Zora Stream. Find ratings, trailers, and recommendations.",
   openGraph: {
-    title: "Search | MovieApp",
-    description: "Search for movies, TV shows, and anime on MovieApp.",
+    title: "Search | Zora Stream",
+    description: "Search for movies, TV shows, and anime on Zora Stream.",
     type: "website",
   },
 };

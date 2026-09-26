@@ -118,7 +118,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const shareData = { title: show.name, text: `Check out ${show.name} on MovieApp!`, url };
+    const shareData = { title: show.name, text: `Check out ${show.name} on Zora Stream!`, url };
     if (navigator.share) {
       try { await navigator.share(shareData); setShareToast("shared"); } catch { return; }
     } else {

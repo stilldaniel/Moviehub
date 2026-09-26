@@ -3,17 +3,17 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Explore Anime",
   description:
-    "Dive into the world of anime. Browse popular series, movies, and hidden gems by type, year, and rating on MovieApp.",
+    "Dive into the world of anime. Browse popular series, movies, and hidden gems by type, year, and rating on Zora Stream.",
   openGraph: {
-    title: "Explore Anime | MovieApp",
+    title: "Explore Anime | Zora Stream",
     description:
       "Dive into the world of anime. Browse popular series, movies, and hidden gems.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Explore Anime | MovieApp",
-    description: "Dive into the world of anime on MovieApp.",
+    title: "Explore Anime | Zora Stream",
+    description: "Dive into the world of anime on Zora Stream.",
   },
 };
 

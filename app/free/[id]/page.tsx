@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!film) return { title: "Film Not Found" };
   return {
     title: `Watch ${film.title}${film.year ? ` (${film.year})` : ""} free`,
-    description: film.description?.slice(0, 160) || `${film.title} is in the public domain. Watch it free on MovieApp.`,
+    description: film.description?.slice(0, 160) || `${film.title} is in the public domain. Watch it free on Zora Stream.`,
   };
 }
 

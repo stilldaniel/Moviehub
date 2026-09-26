@@ -122,7 +122,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const shareData = { title: movie.title, text: `Check out ${movie.title} on MovieApp!`, url };
+    const shareData = { title: movie.title, text: `Check out ${movie.title} on Zora Stream!`, url };
     if (navigator.share) {
       try { await navigator.share(shareData); setShareToast("shared"); } catch { return; }
     } else {

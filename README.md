@@ -1,6 +1,6 @@
-# MovieApp
+# Zora Stream
 
-Browse movies, TV shows and anime, save favorites, rate and review titles, and get a personal "For You" feed.
+Browse movies, TV shows and anime, save favorites, rate and review titles, get a personal "For You" feed, watch public-domain classics in full, and follow scores and official live streams across 11 sports.
 
 Live: https://moviehub-eight-eta.vercel.app
 
@@ -9,6 +9,10 @@ Live: https://moviehub-eight-eta.vercel.app
 - **Next.js 16** (App Router) + React 19, Tailwind CSS v4, framer-motion
 - **Supabase** for auth (email/password and Google) and user data
 - **TMDB** for all movie and TV data
+
+## Brand
+
+The logo is vector artwork: `components/brand/ZoraMark.tsx` (emblem) and `ZoraLogo.tsx` (emblem + wordmark). Source SVGs live in `assets/brand/`; `app/icon.svg`, `app/apple-icon.png`, `public/icon-*.png` and `app/opengraph-image.tsx` are generated from them. The wordmark uses Exo 2 ExtraBold Italic (SIL Open Font License), loaded with `next/font` and bundled in `assets/fonts/` for the share image.
 
 ## Getting started
 

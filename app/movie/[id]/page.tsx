@@ -42,7 +42,7 @@ export async function generateMetadata({
     const title = movie.title || "Movie";
     const description = movie.overview
       ? movie.overview.slice(0, 160)
-      : `Watch ${title} on MovieApp.`;
+      : `Watch ${title} on Zora Stream.`;
     const image = movie.backdrop_path
       ? `${baseImageUrl}${movie.backdrop_path}`
       : undefined;
@@ -53,21 +53,21 @@ export async function generateMetadata({
       title: `${title}${year ? ` (${year})` : ""}`,
       description,
       openGraph: {
-        title: `${title}${year ? ` (${year})` : ""} | MovieApp`,
+        title: `${title}${year ? ` (${year})` : ""} | Zora Stream`,
         description,
         type: "video.movie",
         images: image ? [{ url: image, width: 1280, height: 720, alt: title }] : [],
       },
       twitter: {
         card: "summary_large_image",
-        title: `${title}${year ? ` (${year})` : ""} | MovieApp`,
+        title: `${title}${year ? ` (${year})` : ""} | Zora Stream`,
         description,
         images: image ? [image] : [],
       },
       other: rating ? { "movie:rating": rating } : {},
     };
   } catch {
-    return { title: "Movie | MovieApp" };
+    return { title: "Movie | Zora Stream" };
   }
 }
 

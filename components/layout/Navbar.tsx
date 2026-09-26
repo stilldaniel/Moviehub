@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ZoraLogo from "@/components/brand/ZoraLogo";
 import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Search } from "lucide-react";
@@ -93,8 +94,10 @@ export default function Navbar() {
       <div className="flex items-center justify-between px-6 py-4">
 
         {/* Logo */}
-        <Link href="/" className="text-red-500 text-xl md:text-2xl font-bold shrink-0">
-          MovieApp
+        <Link href="/" className="shrink-0" aria-label="Zora Stream home">
+          {/* Wrappers carry the breakpoints; the logo itself is always inline-flex */}
+          <span className="md:hidden"><ZoraLogo size={28} /></span>
+          <span className="hidden md:inline"><ZoraLogo size={34} /></span>
         </Link>
 
         {/* Desktop Menu */}

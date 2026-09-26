@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
 import FavoritesProvider from "../components/FavoritesProvider";
@@ -6,26 +6,30 @@ import MotionProvider from "../components/MotionProvider";
 
 export const metadata: Metadata = {
   title: {
-    default: "MovieApp — Discover Movies, TV Shows & Anime",
-    template: "%s | MovieApp",
+    default: "Zora Stream — Movies, TV, Anime & Live Sports",
+    template: "%s | Zora Stream",
   },
   description:
-    "Discover and explore thousands of movies, TV shows, and anime. Get ratings, trailers, and personalised recommendations on MovieApp.",
-  keywords: ["movies", "TV shows", "anime", "streaming", "film discovery", "watch list"],
+    "Discover movies, TV shows and anime, watch free classics, and follow live sports. Ratings, trailers, where to watch and personalised picks on Zora Stream.",
+  keywords: ["Zora Stream", "movies", "TV shows", "anime", "free movies", "live sports", "scores", "where to watch"],
   openGraph: {
-    title: "MovieApp — Discover Movies, TV Shows & Anime",
+    title: "Zora Stream — Movies, TV, Anime & Live Sports",
     description:
-      "Discover and explore thousands of movies, TV shows, and anime. Get ratings, trailers, and personalised recommendations.",
+      "Movies, TV shows and anime, free classics to watch in full, and live sports scores and streams.",
     type: "website",
     locale: "en_US",
-    siteName: "MovieApp",
+    siteName: "Zora Stream",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MovieApp — Discover Movies, TV Shows & Anime",
+    title: "Zora Stream — Movies, TV, Anime & Live Sports",
     description:
-      "Discover and explore thousands of movies, TV shows, and anime.",
+      "Movies, TV shows and anime, free classics to watch in full, and live sports scores and streams.",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0b0b",
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import ZoraLogo from "@/components/brand/ZoraLogo";
 import { FaGoogle, FaEnvelope, FaLock } from "react-icons/fa";
 
 export default function LoginPage() {
@@ -51,8 +52,9 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-red-500 text-3xl font-bold">
-            MovieApp
+          <Link href="/" className="inline-flex" aria-label="Zora Stream home">
+            <span className="sm:hidden"><ZoraLogo size={46} speedLines /></span>
+            <span className="hidden sm:inline"><ZoraLogo size={60} speedLines /></span>
           </Link>
           <p className="text-gray-400 mt-2 text-sm">Sign in to your account</p>
         </div>
@@ -116,7 +118,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-gray-400 text-sm mt-6">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/auth/signup" className="text-red-500 hover:text-red-400 font-medium">
               Sign up
             </Link>

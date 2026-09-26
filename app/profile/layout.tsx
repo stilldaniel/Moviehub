@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "My Profile",
   description:
-    "Manage your MovieApp profile, subscription, watch history, ratings, and account settings.",
+    "Manage your Zora Stream profile, subscription, watch history, ratings, and account settings.",
   openGraph: {
-    title: "My Profile | MovieApp",
-    description: "Manage your MovieApp profile, subscription, and account settings.",
+    title: "My Profile | Zora Stream",
+    description: "Manage your Zora Stream profile, subscription, and account settings.",
     type: "website",
   },
 };
