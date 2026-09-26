@@ -150,7 +150,6 @@ function SearchResults() {
         <h1 className="text-2xl sm:text-3xl font-bold">
           Search results for <span className="text-red-500">"{query}"</span>
         </h1>
-        <p className="text-gray-400 text-sm mt-1">{results.length} results found</p>
       </div>
 
       <div className="flex flex-wrap gap-3 border-b border-gray-800 pb-4 mb-6">
