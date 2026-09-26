@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Row from "@/components/Row";
 import AnimatedSection from "@/components/AnimatedSection";
 import ForYouFeed from "@/components/ForYouFeed";
+import FreeClassicsRow from "@/components/FreeClassicsRow";
 import { getSafeUser } from "@/lib/supabase";
 
 export default async function HomePage() {
@@ -48,6 +49,10 @@ export default async function HomePage() {
             title="Trending Now"
             fetchUrl={`/api/tmdb/trending/all/week`}
           />
+        </AnimatedSection>
+
+        <AnimatedSection>
+          <FreeClassicsRow />
         </AnimatedSection>
 
         <AnimatedSection>

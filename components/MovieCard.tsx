@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { genreMap } from "@/lib/genres";
-import { FaPlay, FaPlus, FaCheck, FaStar } from "react-icons/fa";
+import { FaPlay, FaPlus, FaCheck, FaStar, FaInfoCircle } from "react-icons/fa";
 import { useFavorites } from "./FavoritesProvider";
 import { mediaHref } from "@/lib/utils";
+import { freeClassicArchiveId } from "@/lib/freeClassics";
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w500";
 
@@ -27,6 +28,8 @@ export default function MovieCard({
 
   const mediaType = movie.media_type === "tv" ? "tv" : "movie";
   const isFavorite = checkIsFavorite(movie.id, mediaType);
+  // Public-domain films play in full on their details page; everything else opens details / where to watch
+  const isFree = mediaType === "movie" && !!freeClassicArchiveId(movie.id);
 
   const genres = movie.genre_ids
     ?.slice(0, 2)
@@ -85,6 +88,7 @@ export default function MovieCard({
           </div>
         )}
         {mediaType === "tv" && <div className="poster-badge left-2 text-white/90">TV</div>}
+        {isFree && <div className="poster-badge left-2 text-emerald-300">Free</div>}
 
         <div className="poster-shade" />
 
@@ -93,8 +97,8 @@ export default function MovieCard({
           <p className="poster-meta">{meta}</p>
           <div className="poster-actions">
             <div className="poster-play">
-              <FaPlay size={10} />
-              Play
+              {isFree ? <FaPlay size={10} /> : <FaInfoCircle size={11} />}
+              {isFree ? "Watch free" : "Details"}
             </div>
             <button
               type="button"

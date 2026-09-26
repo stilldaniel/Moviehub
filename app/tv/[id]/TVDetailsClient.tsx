@@ -11,6 +11,7 @@ import { useFavorites } from "@/components/FavoritesProvider";
 import MovieCard from "@/components/MovieCard";
 import { runtimeFromDetails } from "@/lib/tmdb";
 import { easeSoft } from "@/components/MotionProvider";
+import WhereToWatch from "@/components/WhereToWatch";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
@@ -203,6 +204,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
                 <FaShare size={12} /> Share
               </button>
             </div>
+            <WhereToWatch mediaType="tv" id={show.id} />
           </motion.div>
         </div>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaPlay, FaInfoCircle, FaStar } from "react-icons/fa";
 import { easeSoft } from "./MotionProvider";
+import { mediaHref } from "@/lib/utils";
 
 // Text blocks rise in one after another once the backdrop has started to settle
 const content = {
@@ -128,14 +129,14 @@ export default function Hero() {
 
         {/* Buttons */}
         <motion.div variants={item} className="flex flex-wrap gap-3">
-          <Link href={`/movie/${movie.id}`}>
+          <Link href={`${mediaHref("movie", movie.id, movie.title)}#where-to-watch`}>
             <button className="bg-red-600 hover:bg-red-700 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition duration-300 ease-soft active:scale-[0.97] cursor-pointer flex items-center gap-2">
               <FaPlay size={14} />
               Watch Now
             </button>
           </Link>
 
-          <Link href={`/movie/${movie.id}`}>
+          <Link href={mediaHref("movie", movie.id, movie.title)}>
             <button className="bg-gray-700/80 hover:bg-gray-600 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition duration-300 ease-soft active:scale-[0.97] cursor-pointer flex items-center gap-2">
               <FaInfoCircle size={16} />
               More Info

@@ -10,6 +10,8 @@ import type { Session } from "@supabase/supabase-js";
 import { useFavorites } from "@/components/FavoritesProvider";
 import MovieCard from "@/components/MovieCard";
 import { easeSoft } from "@/components/MotionProvider";
+import WhereToWatch from "@/components/WhereToWatch";
+import { archiveEmbedUrl, freeClassicArchiveId } from "@/lib/freeClassics";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/original";
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
@@ -33,7 +35,11 @@ interface SimilarMovie {
 
 export default function MovieDetailsClient({ movie }: { movie: any }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("general");
+  // Public-domain films can be watched in full here, so they open on the player
+  const archiveId = freeClassicArchiveId(movie.id);
+  const [activeTab, setActiveTab] = useState(archiveId ? "watch" : "general");
+  const tabs = archiveId ? ["watch", "general", "trailer", "ratings"] : ["general", "trailer", "ratings"];
+  const tabLabels: Record<string, string> = { watch: "Watch Free", general: "General", trailer: "Trailer", ratings: "Rate & Review" };
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [review, setReview] = useState("");
@@ -188,8 +194,16 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
               ))}
             </div>
             <div className="flex gap-3 flex-wrap">
+              {archiveId && (
+                <button
+                  onClick={() => { setActiveTab("watch"); trackWatchHistory(); document.getElementById("details-tabs")?.scrollIntoView({ behavior: "smooth" }); }}
+                  className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2 cursor-pointer"
+                >
+                  <FaPlay size={12} /> Watch Free
+                </button>
+              )}
               {trailer && (
-                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" onClick={trackWatchHistory} className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2">
+                <Link href={`https://www.youtube.com/watch?v=${trailer.key}`} target="_blank" onClick={trackWatchHistory} className={`${archiveId ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-700"} px-5 py-2 rounded-lg text-sm font-medium transition duration-300 ease-soft active:scale-[0.97] flex items-center gap-2`}>
                   <FaPlay size={12} /> Watch Trailer
                 </Link>
               )}
@@ -201,15 +215,16 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
                 <FaShare size={12} /> Share
               </button>
             </div>
+            <WhereToWatch mediaType="movie" id={movie.id} />
           </motion.div>
         </div>
 
         {/* TABS */}
-        <div className="flex gap-6 mt-8 border-b border-gray-800 mb-6">
-          {["general", "trailer", "ratings"].map((tab) => (
-            <button key={tab} onClick={() => { setActiveTab(tab); if (tab === "trailer" && trailer) trackWatchHistory(); }}
+        <div id="details-tabs" className="flex gap-6 mt-8 border-b border-gray-800 mb-6 scroll-mt-24">
+          {tabs.map((tab) => (
+            <button key={tab} onClick={() => { setActiveTab(tab); if ((tab === "trailer" && trailer) || tab === "watch") trackWatchHistory(); }}
               className={`relative pb-3 text-sm font-medium capitalize transition-colors duration-300 cursor-pointer ${activeTab === tab ? "text-white" : "text-gray-500 hover:text-gray-300"}`}>
-              {tab === "general" ? "General" : tab === "trailer" ? "Trailer" : "Rate & Review"}
+              {tabLabels[tab]}
               {activeTab === tab && (
                 <motion.span layoutId="details-tab-underline" transition={{ duration: 0.45, ease: easeSoft }} className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-red-500" />
               )}
@@ -257,6 +272,27 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* WATCH TAB — full public-domain film from the Internet Archive */}
+        {activeTab === "watch" && archiveId && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: easeSoft }} className="mb-12">
+            <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-xl bg-black shadow-lg">
+              <iframe
+                src={archiveEmbedUrl(archiveId)}
+                title={`Watch ${movie.title}`}
+                className="w-full h-full"
+                allow="fullscreen"
+                allowFullScreen
+              />
+            </div>
+            <p className="mt-3 text-xs text-gray-500">
+              {movie.title} is in the public domain. Streaming from the{" "}
+              <a href={`https://archive.org/details/${archiveId}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-300">
+                Internet Archive
+              </a>.
+            </p>
           </motion.div>
         )}
 
