@@ -45,7 +45,33 @@ The TMDB key stays on the server. Server components call TMDB directly through `
 | `watch_history` | `id`, `user_id`, `media_id`, `media_type`, `title`, `poster_path`, `vote_average`, `genre_ids`, `runtime`, `progress`, `watched_at` — unique on `(user_id, media_id, media_type)` |
 | `ratings` | `id`, `user_id`, `media_id`, `media_type`, `title`, `poster_path`, `rating`, `review`, `created_at` — unique on `(user_id, media_id, media_type)` |
 
-There is also a public `avatars` storage bucket for profile pictures.
+There is also a public `avatars` storage bucket for profile pictures (images up to 2 MB). Each user can only upload, replace or delete their own file, named `<user id>.<ext>`:
+
+```sql
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/png','image/jpeg','image/webp','image/gif'])
+on conflict (id) do update
+  set public = true,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+create policy "Avatar owners can read" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'avatars' and split_part(name, '.', 1) = (select auth.uid())::text);
+
+create policy "Avatar owners can upload" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'avatars' and split_part(name, '.', 1) = (select auth.uid())::text);
+
+create policy "Avatar owners can update" on storage.objects
+  for update to authenticated
+  using (bucket_id = 'avatars' and split_part(name, '.', 1) = (select auth.uid())::text)
+  with check (bucket_id = 'avatars' and split_part(name, '.', 1) = (select auth.uid())::text);
+
+create policy "Avatar owners can delete" on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'avatars' and split_part(name, '.', 1) = (select auth.uid())::text);
+```
 
 ### Row Level Security
 

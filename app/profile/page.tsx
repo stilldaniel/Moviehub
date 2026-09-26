@@ -159,11 +159,15 @@ export default function ProfilePage() {
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ""; // allow choosing the same file again after an error
     if (!file || !user) return;
-    const fileExt = file.name.split(".").pop();
+    const showError = (message: string) => { setSaveMessage(message); setTimeout(() => setSaveMessage(""), 5000); };
+    if (!file.type.startsWith("image/")) return showError("Choose an image file");
+    if (file.size > 2 * 1024 * 1024) return showError("Image must be 2 MB or smaller");
+    const fileExt = file.name.split(".").pop()?.toLowerCase();
     const fileName = `${user.id}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
-    if (uploadError) { setSaveMessage("Upload error"); return; }
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true, contentType: file.type });
+    if (uploadError) return showError(`Upload failed: ${uploadError.message}`);
     const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(fileName);
     // Same file name on every upload, so add a version to stop browsers showing the old picture
     const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}`;
@@ -541,7 +545,7 @@ export default function ProfilePage() {
                 <div style={{ display:"flex",alignItems:"center",gap:4,color:"rgba(255,255,255,0.35)",fontSize:11 }}>
                   <FaCalendarAlt size={9} /><span>Since {memberSince}</span>
                 </div>
-                {saveMessage && <p style={{ color:"#4ade80",fontSize:11,marginTop:5 }}>{saveMessage}</p>}
+                {saveMessage && <p style={{ color:saveMessage.endsWith("!")?"#4ade80":"#f87171",fontSize:11,marginTop:5 }}>{saveMessage}</p>}
               </div>
 
               {/* Edit Profile button */}
@@ -788,7 +792,7 @@ export default function ProfilePage() {
                         <input type="text" value={value} onChange={(e)=>setter(e.target.value)} className="prof-input" />
                       </div>
                     ))}
-                    {saveMessage&&<p style={{ fontSize:13,color:saveMessage.includes("Error")?"#f87171":"#4ade80" }}>{saveMessage}</p>}
+                    {saveMessage&&<p style={{ fontSize:13,color:saveMessage.endsWith("!")?"#4ade80":"#f87171" }}>{saveMessage}</p>}
                     <button onClick={saveProfile} disabled={saving} style={{ background:"#dc2626",color:"#fff",padding:"10px 20px",borderRadius:12,fontSize:13,fontWeight:600,border:"none",cursor:"pointer",alignSelf:"flex-start" }}>
                       {saving?"Saving...":"Save Changes"}
                     </button>
