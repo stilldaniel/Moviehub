@@ -215,8 +215,8 @@ export default function Scoreboard({
         })
         .catch((err: Error) => { if (!cancelled) setError(err.message || "Couldn't load scores right now."); });
     load();
-    // Today's data can change; check again every 5 minutes while the page is open
-    const timer = day === "today" ? setInterval(load, 5 * 60 * 1000) : undefined;
+    // Live scores: check again every minute while today's page is open and visible
+    const timer = day === "today" ? setInterval(() => { if (!document.hidden) load(); }, 60 * 1000) : undefined;
     return () => { cancelled = true; if (timer) clearInterval(timer); };
   }, [sport, day, attempt]);
 
