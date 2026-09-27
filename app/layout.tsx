@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import FavoritesProvider from "../components/FavoritesProvider";
 import MotionProvider from "../components/MotionProvider";
 
@@ -51,6 +52,7 @@ export default function RootLayout({
             </a>
             <Navbar />
             <main id="main" tabIndex={-1} className="outline-none">{children}</main>
+            <Footer />
           </FavoritesProvider>
         </MotionProvider>
       </body>
