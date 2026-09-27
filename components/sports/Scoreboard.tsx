@@ -13,17 +13,6 @@ const DAYS = [
 ] as const;
 type DayKey = (typeof DAYS)[number]["key"];
 
-// Big competitions first; everything else follows, busiest leagues first
-const FEATURED_LEAGUES: Partial<Record<SportKey, number[]>> = {
-  football: [2, 3, 848, 39, 140, 135, 78, 61, 1, 4, 6, 12, 399, 253, 307, 94, 88, 45, 48, 143, 137, 81, 66],
-  basketball: [12, 120, 116, 117, 202],
-  "american-football": [1, 2],
-  baseball: [1, 2],
-  hockey: [57, 59],
-  rugby: [16, 27, 44, 51, 71, 80],
-  volleyball: [97, 98, 113],
-  handball: [131, 132, 145],
-};
 const LEAGUES_PER_PAGE = 20;
 
 type LeagueGroup = { key: string; league: Game["league"]; games: Game[]; live: number };
@@ -91,19 +80,19 @@ function GameRow({ game }: { game: Game }) {
   );
 }
 
-function StandingsTable({ sport, league }: { sport: SportKey; league: Game["league"] }) {
+function StandingsTable({ league }: { league: Game["league"] }) {
   const [groups, setGroups] = useState<StandingGroup[] | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`/api/sports/standings?sport=${sport}&league=${league.id}&season=${league.season}`)
+    fetch(`/api/sports/standings?league=${encodeURIComponent(league.table ?? "")}`)
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         setGroups(data.groups);
       })
       .catch((err: Error) => setError(err.message || "Couldn't load this table."));
-  }, [sport, league.id, league.season]);
+  }, [league.table]);
 
   if (error) return <p className="px-4 py-4 text-sm text-fg-muted border-t border-white/5">{error}</p>;
   if (!groups) return <div className="h-24 border-t border-white/5 animate-pulse bg-white/[0.02]" />;
@@ -154,9 +143,9 @@ function StandingsTable({ sport, league }: { sport: SportKey; league: Game["leag
   );
 }
 
-function LeagueCard({ sport, group }: { sport: SportKey; group: LeagueGroup }) {
+function LeagueCard({ group }: { group: LeagueGroup }) {
   const [showTable, setShowTable] = useState(false);
-  const canShowTable = TABLES_ENABLED && SPORTS.find((s) => s.key === sport)?.standings && group.league.season != null;
+  const canShowTable = TABLES_ENABLED && !!group.league.table;
 
   return (
     <section className="rounded-xl bg-surface ring-1 ring-white/5 overflow-hidden">
@@ -168,7 +157,6 @@ function LeagueCard({ sport, group }: { sport: SportKey; group: LeagueGroup }) {
         )}
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold truncate">{group.league.name}</h3>
-          {group.league.country && <p className="text-xs text-fg-subtle truncate">{group.league.country}</p>}
         </div>
         {group.live > 0 && <span className="text-xs text-danger font-medium">{group.live} live</span>}
         {canShowTable && (
@@ -182,7 +170,7 @@ function LeagueCard({ sport, group }: { sport: SportKey; group: LeagueGroup }) {
         )}
       </header>
       {showTable ? (
-        <StandingsTable sport={sport} league={group.league} />
+        <StandingsTable league={group.league} />
       ) : (
         group.games.map((game) => <GameRow key={game.id} game={game} />)
       )}
@@ -239,7 +227,7 @@ export default function Scoreboard({
     for (const game of games) {
       if (liveOnly && game.state !== "live") continue;
       if (q) {
-        const haystack = [game.league.name, game.league.country, game.home?.name, game.away?.name, game.title].join(" ").toLowerCase();
+        const haystack = [game.league.name, game.home?.name, game.away?.name, game.title].join(" ").toLowerCase();
         if (!haystack.includes(q)) continue;
       }
       const key = `${game.league.id}-${game.league.name}`;
@@ -248,15 +236,11 @@ export default function Scoreboard({
       if (game.state === "live") group.live++;
       byLeague.set(key, group);
     }
-    const featured = FEATURED_LEAGUES[sport] ?? [];
-    const rank = (g: LeagueGroup) => {
-      const i = featured.indexOf(g.league.id);
-      return i === -1 ? featured.length : i;
-    };
+    // Featured competitions first (server order), then busiest
     return [...byLeague.values()].sort(
-      (a, b) => rank(a) - rank(b) || b.live - a.live || b.games.length - a.games.length || a.league.name.localeCompare(b.league.name)
+      (a, b) => a.league.order - b.league.order || b.live - a.live || b.games.length - a.games.length || a.league.name.localeCompare(b.league.name)
     );
-  }, [games, liveOnly, query, sport]);
+  }, [games, liveOnly, query]);
 
   const liveCount = games?.filter((g) => g.state === "live").length ?? 0;
 
@@ -337,7 +321,7 @@ export default function Scoreboard({
         <>
           <div className="grid gap-3 lg:grid-cols-2 items-start">
             {groups.slice(0, visible).map((group) => (
-              <LeagueCard key={`${requestKey}-${group.key}`} sport={sport} group={group} />
+              <LeagueCard key={`${requestKey}-${group.key}`} group={group} />
             ))}
           </div>
           {groups.length > visible && (

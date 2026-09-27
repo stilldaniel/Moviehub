@@ -52,7 +52,7 @@ export default function TermsPage() {
           <li>Movie and TV information and images come from <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</li>
           <li>Streaming availability is provided by <a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer">JustWatch</a> through TMDB.</li>
           <li>Free films are public-domain works streamed from the <a href="https://archive.org" target="_blank" rel="noopener noreferrer">Internet Archive</a>.</li>
-          <li>Trailers and live sports streams are played from YouTube, only from official channels. Sports scores come from API-Sports.</li>
+          <li>Trailers and live sports streams are played from YouTube, only from official channels. Sports scores, fixtures and tables come from ESPN.</li>
         </ul>
         <p>This information is provided as-is by those sources. We can&apos;t guarantee it&apos;s always complete, accurate or up to date. For example, scores may be delayed and streaming availability can change. Your use of third-party services is governed by their own terms.</p>
       </LegalSection>

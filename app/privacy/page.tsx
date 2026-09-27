@@ -47,7 +47,7 @@ export default function PrivacyPage() {
           <li><strong>Google</strong> handles &ldquo;Continue with Google&rdquo; sign-in, if you choose to use it.</li>
           <li><strong>The Movie Database (TMDB)</strong> provides movie and TV information and images. Posters and backdrops load directly from TMDB&apos;s servers, so TMDB can see your IP address.</li>
           <li><strong>YouTube</strong> plays trailers and official sports streams, and the <strong>Internet Archive</strong> plays public-domain films. When you play one of these, it loads from that service, which may set its own cookies.</li>
-          <li><strong>API-Sports</strong> and <strong>JustWatch</strong> (through TMDB) provide sports scores and streaming availability. These requests are made by our server and don&apos;t include your personal information.</li>
+          <li><strong>ESPN</strong> and <strong>JustWatch</strong> (through TMDB) provide sports scores and streaming availability. These requests are made by our server and don&apos;t include your personal information.</li>
         </ul>
       </LegalSection>
 

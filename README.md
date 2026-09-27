@@ -1,6 +1,6 @@
 # Zora Stream
 
-Browse movies, TV shows and anime, save favorites, rate and review titles, get a personal "For You" feed, watch public-domain classics in full, and follow scores and official live streams across 11 sports.
+Browse movies, TV shows and anime, save favorites, rate and review titles, get a personal "For You" feed, watch public-domain classics in full, and follow live scores, tables and official live streams across 10 sports.
 
 Live: https://moviehub-eight-eta.vercel.app
 
@@ -31,7 +31,6 @@ Open http://localhost:3000.
 | `TMDB_API_KEY` | Server only | Your TMDB v3 API key. Never prefix it with `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_SUPABASE_URL` | Browser + server | Your Supabase project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser + server | The **publishable** key (`sb_publishable_…`). Never use a secret or `service_role` key here: anything prefixed `NEXT_PUBLIC_` is shipped to every visitor. |
-| `SPORTS_API_KEY` | Server only | [API-Sports](https://dashboard.api-football.com) key. One key covers every sport; the free plan allows 100 requests per sport per day. |
 | `YOUTUBE_API_KEY` | Server only | YouTube Data API v3 key (restrict it to that API). Used to find live streams on official sports channels. |
 
 On Vercel, set the same variables for Production and Preview.
@@ -42,7 +41,7 @@ The TMDB key stays on the server. Server components call TMDB directly through `
 
 ## Sports
 
-`/sports` shows scores and fixtures for 11 sports from API-Sports (`lib/sports.ts`). Every request goes through `/api/sports/*` and is cached (today's games for 20 minutes, other days for 6 hours) so the free plan's daily limit isn't exceeded. League tables are behind `TABLES_ENABLED` because the free plan only serves standings for the 2022–2024 seasons.
+`/sports` shows live scores, fixtures and league tables for 10 sports from ESPN's public site API (`lib/sportsApi.ts`, server only). It needs no key, but it's unofficial and undocumented: it can change without notice, so every call is cached (today's games for 60 seconds, other days for 30 minutes), only successful responses are cached, and any failure shows a friendly "unavailable" message. Competitions and their display order are listed in `SOURCES`; matches from other football competitions are grouped by ESPN's match notes under their own headings.
 
 The "Live on YouTube" row only checks the official channels listed in `lib/officialChannels.ts`, so unauthorised restreams can't appear. Verify a channel is the genuine official account before adding it.
 

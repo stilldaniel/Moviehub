@@ -7,7 +7,7 @@ import Container from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/Headings";
 import Spinner from "@/components/ui/Spinner";
 import Scoreboard, { type DayKey } from "@/components/sports/Scoreboard";
-import { sportConfig, type SportKey } from "@/lib/sports";
+import { isSportKey, type SportKey } from "@/lib/sports";
 
 // useSearchParams needs a Suspense boundary so the page can still be prerendered
 export default function SportsPage() {
@@ -22,7 +22,8 @@ function SportsPageContent() {
   const router = useRouter();
   const params = useSearchParams();
   // Sport and day live in the URL (/sports?sport=basketball&day=tomorrow) so views can be shared
-  const sport = (sportConfig(params.get("sport") ?? "")?.key ?? "football") as SportKey;
+  const sportParam = params.get("sport") ?? "";
+  const sport: SportKey = isSportKey(sportParam) ? sportParam : "football";
   const dayParam = params.get("day");
   const day: DayKey = dayParam === "yesterday" || dayParam === "tomorrow" ? dayParam : "today";
 
@@ -37,13 +38,13 @@ function SportsPageContent() {
 
   return (
     <Container className="min-h-screen pt-28 pb-16">
-      <PageHeader title="Sports" description="Scores and fixtures across every league. Scores update about every 20 minutes." />
+      <PageHeader title="Sports" description="Live scores, fixtures and tables across football, basketball, tennis, F1 and more." />
 
       <LiveStreams />
 
       <Scoreboard sport={sport} day={day} onChange={change} />
 
-      <p className="mt-10 text-[11px] text-fg-subtle">Scores and fixtures from API-Sports. Times are shown in your local time zone.</p>
+      <p className="mt-10 text-[11px] text-fg-subtle">Scores and fixtures from ESPN. Times are shown in your local time zone.</p>
     </Container>
   );
 }
