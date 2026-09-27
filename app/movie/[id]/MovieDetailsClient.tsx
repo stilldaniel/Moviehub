@@ -13,6 +13,7 @@ import WhereToWatch from "@/components/WhereToWatch";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/Headings";
+import ScrollRow from "@/components/ui/ScrollRow";
 import { archiveEmbedUrl, freeClassicArchiveId } from "@/lib/freeClassics";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/w1280"; // not "original": that can be a multi-MB 4K image
@@ -257,7 +258,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
             {cast.length > 0 && (
               <div className="mb-12">
                 <SectionHeader title="Cast" className="mb-4" />
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                <ScrollRow label="Cast">
                   {cast.map((member) => (
                     <div key={member.id} className="w-[120px] shrink-0 rounded-xl overflow-hidden bg-surface-raised hover:bg-control transition duration-300 ease-soft hover:-translate-y-1 hover:shadow-lg hover:shadow-black/50">
                       <div className="relative w-full aspect-[5/6]">
@@ -271,7 +272,7 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
                       </div>
                     </div>
                   ))}
-                </div>
+                </ScrollRow>
               </div>
             )}
           </motion.div>
@@ -346,11 +347,11 @@ export default function MovieDetailsClient({ movie }: { movie: any }) {
         {similar.length > 0 && (
           <div className="pt-8 pb-12 border-t border-line">
             <SectionHeader title="More Like This" className="mb-4" />
-            <div className="poster-row">
+            <ScrollRow label="More like this">
               {similar.map((item, i) => (
                 <MovieCard key={item.id} movie={{ ...item, media_type: "movie" }} index={i} />
               ))}
-            </div>
+            </ScrollRow>
           </div>
         )}
       </Container>

@@ -39,8 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="bg-canvas text-fg">
+        {/* Measures the scrollbar so full-width rows line up exactly (100vw includes it on Windows) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){function s(){document.documentElement.style.setProperty('--sbw',(innerWidth-document.documentElement.clientWidth)+'px')}s();addEventListener('resize',s)})()",
+          }}
+        />
         <MotionProvider>
           <FavoritesProvider>
             {/* First thing keyboard users reach: jump past the header */}

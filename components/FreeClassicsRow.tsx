@@ -6,6 +6,7 @@ import MovieCard from "./MovieCard";
 import { SectionHeader } from "./ui/Headings";
 import { PosterRowSkeleton } from "./ui/Skeleton";
 import { FREE_CLASSICS } from "@/lib/freeClassics";
+import ScrollRow from "@/components/ui/ScrollRow";
 
 // Home page row of public-domain films that play in full inside the app
 export default function FreeClassicsRow() {
@@ -40,11 +41,11 @@ export default function FreeClassicsRow() {
       {movies === null ? (
         <PosterRowSkeleton />
       ) : (
-        <div className="poster-row">
+        <ScrollRow label="Free to Watch">
           {movies.map((movie, i) => (
             <MovieCard key={movie.id} movie={movie} index={i} />
           ))}
-        </div>
+        </ScrollRow>
       )}
     </section>
   );

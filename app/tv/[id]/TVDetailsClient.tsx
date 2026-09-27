@@ -14,6 +14,7 @@ import WhereToWatch from "@/components/WhereToWatch";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/Headings";
+import ScrollRow from "@/components/ui/ScrollRow";
 
 const imageBaseUrl = "https://image.tmdb.org/t/p/w1280"; // not "original": that can be a multi-MB 4K image
 const posterBaseUrl = "https://image.tmdb.org/t/p/w500"; // shown up to 240px wide, so 500px stays sharp on 2x screens
@@ -250,7 +251,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
             {cast.length > 0 && (
               <div className="mb-12">
                 <SectionHeader title="Cast" className="mb-4" />
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                <ScrollRow label="Cast">
                   {cast.map((member) => (
                     <div key={member.id} className="w-[120px] shrink-0 rounded-xl overflow-hidden bg-surface-raised hover:bg-control transition duration-300 ease-soft hover:-translate-y-1 hover:shadow-lg hover:shadow-black/50">
                       <div className="relative w-full aspect-[5/6]">
@@ -264,7 +265,7 @@ export default function TVDetailsClient({ show }: { show: any }) {
                       </div>
                     </div>
                   ))}
-                </div>
+                </ScrollRow>
               </div>
             )}
           </motion.div>
@@ -318,11 +319,11 @@ export default function TVDetailsClient({ show }: { show: any }) {
         {similar.length > 0 && (
           <div className="pt-8 pb-12 border-t border-line">
             <SectionHeader title="More Like This" className="mb-4" />
-            <div className="poster-row">
+            <ScrollRow label="More like this">
               {similar.map((item, i) => (
                 <MovieCard key={item.id} movie={{ ...item, media_type: "tv" }} index={i} />
               ))}
-            </div>
+            </ScrollRow>
           </div>
         )}
       </Container>

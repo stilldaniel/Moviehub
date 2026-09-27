@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
 import { SectionHeader } from "./ui/Headings";
 import { PosterRowSkeleton, SkeletonBlock } from "./ui/Skeleton";
+import ScrollRow from "@/components/ui/ScrollRow";
 
 function RowSkeleton() {
   return (
@@ -55,11 +56,11 @@ export default function Row({
   return (
     <section>
       <SectionHeader title={title} className="mb-0" />
-      <div className="poster-row">
+      <ScrollRow label={title}>
         {movies.map((movie, i) => (
           <MovieCard key={movie.id} movie={movie} index={i} />
         ))}
-      </div>
+      </ScrollRow>
     </section>
   );
 }

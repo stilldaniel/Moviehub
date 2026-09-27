@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FaPlay, FaTimes, FaYoutube } from "react-icons/fa";
 import type { LiveStream } from "@/lib/officialChannels";
+import ScrollRow from "@/components/ui/ScrollRow";
 
 // Two-letter country from the browser locale, used to hide region-blocked streams
 function viewerRegion(): string | undefined {
@@ -65,7 +66,7 @@ export default function LiveStreams() {
         </div>
       </div>
 
-      <div className="poster-row">
+      <ScrollRow label="Live on YouTube">
         {streams.map((s, i) => (
           <button
             key={s.videoId}
@@ -88,7 +89,7 @@ export default function LiveStreams() {
             <p className="text-xs text-fg-subtle">{s.channel} · {s.sport}</p>
           </button>
         ))}
-      </div>
+      </ScrollRow>
 
       {playing && (
         <div

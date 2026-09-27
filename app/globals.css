@@ -43,7 +43,8 @@ body {
   background-color: var(--color-canvas);
   color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
-  overflow-y: scroll;
+  overflow-y: scroll; /* always reserve the scrollbar, so page widths never jump */
+  overflow-x: hidden; /* safety net: nothing may cause sideways page scrolling */
 }
 
 /* Keyboard focus: one visible ring for every focusable element that doesn't draw its own */
@@ -67,16 +68,79 @@ body {
   scrollbar-width: none;
 }
 
-/* Horizontal card rows: extra vertical room so the hover lift and shadow aren't clipped */
+/*
+ * Horizontal card rows run to the edges of the screen (like Netflix) while the first card stays
+ * lined up with the page content. --row-edge is the gap between the content edge and the screen
+ * edge: half the visible viewport minus half the content width (percentages here resolve against
+ * the content width). --sbw is the scrollbar width, set by a tiny script in app/layout.tsx,
+ * because 100vw includes the scrollbar on Windows.
+ */
+:root {
+  --sbw: 0px;
+}
 .poster-row {
+  --row-edge: calc((100vw - var(--sbw)) / 2 - 50%);
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
-  padding: 0.75rem 0.25rem 1.5rem;
-  margin: -0.75rem -0.25rem -1rem;
+  scroll-padding-inline: var(--row-edge);
+  /* extra vertical room so the hover lift and shadow aren't clipped */
+  padding: 0.75rem var(--row-edge) 1.5rem;
+  margin: -0.75rem calc(-1 * var(--row-edge)) -1rem;
   scrollbar-width: none;
+}
+
+/* Desktop scroll arrows at the screen edges (see components/ui/ScrollRow.tsx) */
+.row-arrow {
+  position: absolute;
+  top: 0.75rem;
+  bottom: 1.5rem;
+  z-index: 5;
+  display: none;
+  width: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-fg);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 250ms var(--ease-soft);
+}
+.row-arrow-left {
+  left: calc(50% - (100vw - var(--sbw)) / 2);
+  background: linear-gradient(to right, rgb(0 0 0 / 0.85), transparent);
+}
+.row-arrow-right {
+  right: calc(50% - (100vw - var(--sbw)) / 2);
+  background: linear-gradient(to left, rgb(0 0 0 / 0.85), transparent);
+}
+.row-arrow > span {
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  backdrop-filter: blur(6px);
+  transition: transform 200ms var(--ease-soft), background-color 200ms ease;
+}
+.row-arrow:hover > span {
+  transform: scale(1.08);
+  background: rgb(0 0 0 / 0.8);
+}
+@media (hover: hover) {
+  .row-arrow {
+    display: flex;
+  }
+  .scroll-row:hover .row-arrow.is-available,
+  .row-arrow.is-available:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .poster-row::-webkit-scrollbar {

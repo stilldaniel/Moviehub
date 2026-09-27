@@ -5,6 +5,7 @@ import MovieCard from "./MovieCard";
 import { SectionHeader } from "./ui/Headings";
 import { PosterRowSkeleton } from "./ui/Skeleton";
 import { supabase, getSafeSession } from "@/lib/supabase";
+import ScrollRow from "@/components/ui/ScrollRow";
 const BASE_URL = "/api/tmdb";
 const STORAGE_KEY = "moviehub_search_history";
 
@@ -324,11 +325,11 @@ export default function ForYouFeed() {
     <section>
       <SectionHeader title="For You" description="Picked from what you've saved and watched" className="mb-0" />
 
-      <div className="poster-row">
+      <ScrollRow label="For You">
         {recommendations.map((item, i) => (
           <MovieCard key={`${item.media_type}-${item.id}`} movie={item} index={i} />
         ))}
-      </div>
+      </ScrollRow>
     </section>
   );
 }
