@@ -84,7 +84,7 @@ export default function HistoryPage() {
           action={<Button href="/">Browse movies</Button>}
         />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-3 sm:gap-4">
           {history.map((item, i) => (
             <div key={item.id}>
               <MovieCard

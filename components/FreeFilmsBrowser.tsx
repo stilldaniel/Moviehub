@@ -133,7 +133,7 @@ export default function FreeFilmsBrowser() {
       ) : !loading && films.length === 0 ? (
         <EmptyState icon={<Film size={24} />} title={`No free films match “${search}”`} description="Try a different or shorter title." />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-3">
           {films.map((film, i) => (
             <div key={film.id} ref={i === films.length - 1 ? lastFilmRef : undefined}>
               <FreeFilmCard film={film} index={i % 30} />

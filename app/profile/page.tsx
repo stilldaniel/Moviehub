@@ -561,7 +561,7 @@ export default function ProfilePage() {
                 {favorites.length === 0 ? (
                   <EmptyState icon={<FaBookmark size={20} />} title="Nothing saved yet" description="Tap + on any movie or show to save it." action={<Button href="/">Browse movies</Button>} />
                 ) : (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">{favorites.map(renderPoster)}</div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">{favorites.map(renderPoster)}</div>
                 )}
               </Card>
             )}

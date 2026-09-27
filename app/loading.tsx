@@ -18,7 +18,7 @@ export default function Loading() {
       </div>
 
       {/* Rows skeleton */}
-      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-10 space-y-12 pb-16 pt-8">
+      <div className="w-full px-4 sm:px-6 lg:px-10 space-y-12 pb-16 pt-8">
         {Array.from({ length: 5 }).map((_, rowIndex) => (
           <div key={rowIndex} className="space-y-3">
             {/* Row title */}

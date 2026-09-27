@@ -47,7 +47,7 @@ function PageSkeleton() {
       {/* Grid skeleton */}
       <div className="flex-1 min-w-0">
         <div className="h-6 w-32 bg-surface-raised rounded animate-pulse mb-4" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-3">
           {Array.from({ length: 18 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
@@ -313,7 +313,7 @@ function MoviesPageContent() {
 
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-3">
               {movies.map((movie, index) => {
                 if (movies.length === index + 1) {
                   return (
@@ -332,7 +332,7 @@ function MoviesPageContent() {
 
             {/* Infinite scroll skeleton — appended below existing cards */}
             {loading && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-3 mt-3">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <MovieCardSkeleton key={i} />
                 ))}

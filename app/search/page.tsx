@@ -176,7 +176,7 @@ function SearchResults() {
       </div>
 
       {loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-3">
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="aspect-2/3 animate-pulse rounded-xl bg-surface-raised" />
           ))}
@@ -193,7 +193,7 @@ function SearchResults() {
 
       {!loading && filtered.length > 0 && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-3">
             {filtered.map((item, i) => (
               <MovieCard key={`${item.media_type}-${item.id}`} movie={item} variant="grid" index={i} />
             ))}
@@ -208,7 +208,7 @@ function SearchResults() {
                 className="mb-4"
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-3">
                 {recommendations.map((item, i) => (
                   <MovieCard key={`rec-${item.media_type}-${item.id}`} movie={item} variant="grid" index={i} />
                 ))}

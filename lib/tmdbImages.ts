@@ -17,5 +17,5 @@ export const posterSrcSet = (path: string) =>
 // Rendered widths of MovieCard (see its width classes and the page grids)
 export const POSTER_SIZES = {
   row: "(min-width: 768px) 224px, (min-width: 640px) 192px, 160px",
-  grid: "(min-width: 1280px) 16vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw",
+  grid: "(min-width: 1800px) 12vw, (min-width: 1536px) 14vw, (min-width: 1280px) 16vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw",
 };

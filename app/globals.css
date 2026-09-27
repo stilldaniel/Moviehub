@@ -36,6 +36,9 @@
 
   /* One easing curve for every transition: fast start, long soft landing */
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Extra breakpoint for very wide screens (after the built-in 2xl at 96rem) */
+  --breakpoint-3xl: 112.5rem; /* 1800px */
 }
 
 /* dark theme base */
