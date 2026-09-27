@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, WifiOff } from "lucide-react";
+import Button from "@/components/ui/Button";
+import EmptyState from "@/components/ui/EmptyState";
 import { SPORTS, TABLES_ENABLED, type Game, type SportKey, type StandingGroup } from "@/lib/sports";
 
 const DAYS = [
@@ -203,6 +205,7 @@ export default function Scoreboard({
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState(LEAGUES_PER_PAGE);
   const [loadedKey, setLoadedKey] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   const requestKey = `${sport}:${day}`;
   // Reset per-view state when the sport or day changes (done during render, not in an effect)
@@ -227,7 +230,7 @@ export default function Scoreboard({
     // Today's data can change; check again every 5 minutes while the page is open
     const timer = day === "today" ? setInterval(load, 5 * 60 * 1000) : undefined;
     return () => { cancelled = true; if (timer) clearInterval(timer); };
-  }, [sport, day]);
+  }, [sport, day, attempt]);
 
   const groups = useMemo(() => {
     if (!games) return [];
@@ -314,7 +317,12 @@ export default function Scoreboard({
       </div>
 
       {error && !games ? (
-        <p className="py-16 text-center text-sm text-fg-muted">{error}</p>
+        <EmptyState
+          icon={<WifiOff size={24} />}
+          title="Scores aren't loading right now"
+          description={error}
+          action={<Button variant="secondary" onClick={() => { setError(""); setAttempt((n) => n + 1); }}>Try again</Button>}
+        />
       ) : !games ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (

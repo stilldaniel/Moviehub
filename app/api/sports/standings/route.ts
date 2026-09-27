@@ -1,4 +1,5 @@
-import { normalizeStandings, sportConfig, SportsApiError, sportsRequest, TABLES_ENABLED } from "@/lib/sports";
+import { normalizeStandings, sportConfig, SportsApiError, TABLES_ENABLED } from "@/lib/sports";
+import { sportsRequest } from "@/lib/sportsApi";
 
 // GET /api/sports/standings?sport=football&league=39&season=2026
 export async function GET(request: Request) {

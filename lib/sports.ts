@@ -5,7 +5,7 @@ export type SportKey =
   | "football" | "basketball" | "american-football" | "baseball" | "hockey"
   | "rugby" | "volleyball" | "handball" | "afl" | "mma" | "formula-1";
 
-type SportConfig = { key: SportKey; label: string; host: string; path: string; standings: boolean };
+export type SportConfig = { key: SportKey; label: string; host: string; path: string; standings: boolean };
 
 export const SPORTS: SportConfig[] = [
   { key: "football", label: "Football", host: "v3.football.api-sports.io", path: "fixtures", standings: true },
@@ -200,24 +200,6 @@ export class SportsApiError extends Error {}
 
 // Sends one request to API-Sports. `revalidate` keeps each distinct URL cached so the
 // 100-requests-per-day free limit per sport isn't exceeded.
-export async function sportsRequest(sport: SportConfig, path: string, params: Record<string, string>, revalidate: number) {
-  const key = process.env.SPORTS_API_KEY;
-  if (!key) throw new SportsApiError("SPORTS_API_KEY is not configured");
-  const res = await fetch(`https://${sport.host}/${path}?${new URLSearchParams(params)}`, {
-    headers: { "x-apisports-key": key },
-    next: { revalidate },
-  });
-  if (!res.ok) throw new SportsApiError(`API-Sports returned ${res.status}`);
-  const data = await res.json();
-  // Errors (such as the daily limit) come back with status 200 and a non-empty "errors" field
-  const errors = data.errors && (Array.isArray(data.errors) ? data.errors.length : Object.keys(data.errors).length);
-  if (errors) {
-    const message = JSON.stringify(data.errors);
-    throw new SportsApiError(/limit|requests/i.test(message) ? "Today's free data limit for this sport has been reached. Scores will be back tomorrow." : `API-Sports error: ${message}`);
-  }
-  return data.response ?? [];
-}
-
 // UTC date (YYYY-MM-DD) for yesterday, today or tomorrow
 export function dayToDate(day: string): string | null {
   const offset = { yesterday: -1, today: 0, tomorrow: 1 }[day];

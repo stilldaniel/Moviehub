@@ -1,4 +1,5 @@
-import { dayToDate, normalizeGames, sportConfig, SportsApiError, sportsRequest } from "@/lib/sports";
+import { dayToDate, normalizeGames, sportConfig, SportsApiError } from "@/lib/sports";
+import { sportsRequest } from "@/lib/sportsApi";
 
 // GET /api/sports/games?sport=football&day=today|yesterday|tomorrow
 export async function GET(request: Request) {
