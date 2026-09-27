@@ -153,10 +153,9 @@ export default function Navbar() {
     <>
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
-        solid
-          ? "bg-canvas/95 backdrop-blur-xl border-b border-line"
-          : "border-b border-transparent bg-linear-to-b from-black/70 to-transparent"
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter] duration-300",
+        // Fully transparent over the page; a solid bar (no divider line) once scrolled or while the menu is open
+        solid ? "bg-canvas/95 backdrop-blur-xl" : "bg-transparent"
       )}
     >
       <div className={cn(containerClasses, "flex h-16 md:h-[72px] items-center justify-between gap-6")}>
